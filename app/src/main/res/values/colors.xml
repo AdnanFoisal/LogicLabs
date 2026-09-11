@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Only the handful of colours the *platform* needs before Compose is running.
+    Everything else lives in core-designsystem/theme/Color.kt, which is the single
+    source of truth for the bench palette. Do not grow this file.
+-->
+<resources>
+    <!-- Matches CanvasBase (#0A0A0C) so the window shows no light flash on cold start. -->
+    <color name="canvas_base">#FF0A0A0C</color>
+    <color name="transparent">#00000000</color>
+    <!-- Launcher background: the bench canvas, so the icon sits on the machine's own
+         ground. Referenced only by the adaptive-icon XML. -->
+    <color name="launcher_background">#FF0A0A0C</color>
+</resources>

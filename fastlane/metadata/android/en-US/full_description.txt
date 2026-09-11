@@ -1,0 +1,21 @@
+Logic Labs is a fully offline digital-logic laboratory: a faithful digital twin of the K&H IDL-800A Digital Lab Trainer, with a Tinkercad-inspired 2.5D breadboard, real 74xx TTL chips, and a discrete-event simulation engine derived from hneemann/Digital.
+
+THE BENCH
+• True AD-200 breadboard topology: 1,896 tie-points, four 64-column terminal blocks, seven distribution rails, and the DIP center trench
+• Wire by hand: drag or tap-to-connect jumper wires with magnetic snapping, a 2.2× magnifier loupe, haptic feedback and ten insulation colours
+• Datasheet-exact 74xx parts: 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432, 74266, 7483, 7486, 7474, 7476, 7448
+
+THE CONSOLE
+• 8 SPDT logic switches (SW0–SW7), 2 debounced pulsers, 8 buffered LED monitors with afterglow
+• Stepped clock generator from 0.5 Hz to 100 kHz, and dual BCD-driven seven-segment displays
+• Optional PRACTICAL simulation mode: reversed polarity and bus contention can destroy chips — wire your power rails like the real bench
+
+COURSEWORK & VERIFICATION
+• The Classic 5-lab university curriculum plus extended experiments: universal-gate builds, adders and subtractors, code converters, multiplexers, sequential circuits, and DACs — each with objective checklists
+• One-tap truth-table verification sweeps the full input space and seals the report with an HMAC-SHA256 provenance hash; export an A4 PDF certificate
+• Boolean diagram view: flip to the gate-level schematic of whatever is on your breadboard, with live net colouring and derived boolean expressions per output
+
+100% OFFLINE
+No network permission. No accounts. No tracking. No ads. Everything — engine, coursework and persistence — lives on your device.
+
+The simulation kernel is a headless extraction of the GPLv3 project hneemann/Digital, which sets the license for the whole app (GPL-3.0-or-later).

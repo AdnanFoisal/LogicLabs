@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Launcher foreground: a NAND gate — the universal building block the whole app is
+    about, drawn exactly the way the splash screen draws it.
+
+    Adaptive-icon geometry: 108x108 viewport, with the mask keeping roughly the inner
+    66dp circle, so the glyph is sized and centred on (54, 54) and nothing important
+    rides the edge where launchers crop.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Gate body: flat left edge, rounded right side (the AND shape). -->
+    <path
+        android:strokeColor="#FF22C55E"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M37,38 L55,38 C65,38 69,46 69,54 C69,62 65,70 55,70 L37,70 Z" />
+
+    <!-- Output inversion bubble. -->
+    <path
+        android:strokeColor="#FF22D3EE"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M73,54 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+
+    <!-- Input and output leads. -->
+    <path
+        android:strokeColor="#FFECEEF2"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M23,46 L37,46 M23,62 L37,62 M77,54 L85,54" />
+
+    <!-- Pin-1 dot, amber like the silk-screened index on a real DIP. -->
+    <path
+        android:fillColor="#FFF59E0B"
+        android:pathData="M25,46 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>

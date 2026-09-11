@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The app previously pointed at the framework theme @android:style/Theme.Material.NoActionBar,
+    which left nowhere to declare bar contrast or a window background. Compose owns all real
+    styling; this theme exists only to hand the window sane pre-composition values.
+
+    Both system bars are transparent because MainActivity calls enableEdgeToEdge() and the
+    bench draws its own scrims. Navigation-bar contrast enforcement is disabled so the gesture
+    bar does not get a grey scrim laid over the console dock.
+-->
+<resources>
+    <!--
+        The cold-start splash. Its only job is to own the window for the few hundred
+        milliseconds before Compose takes over: near-black background matching the
+        bench canvas (so the handoff is invisible) and the launcher icon. The branded
+        Power-On Self-Test animation then plays in Compose, where it can use the full
+        design system. postSplashScreenTheme hands back to the real theme.
+    -->
+    <style name="LogicLabs.Theme.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/canvas_base</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/LogicLabs.Theme</item>
+    </style>
+
+    <style name="LogicLabs.Theme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/canvas_base</item>
+        <item name="android:colorBackground">@color/canvas_base</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

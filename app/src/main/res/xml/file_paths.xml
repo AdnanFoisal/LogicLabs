@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Scopes the FileProvider to the one directory the lab-certificate exporter writes into.
+    cacheDir needs no storage permission at any supported API level (minSdk 26), so
+    exporting a signed lab report never prompts the user for anything.
+-->
+<paths>
+    <cache-path name="lab_reports" path="reports/" />
+    <!-- Shared .logiclabs.json project exports; same no-permission story as reports. -->
+    <cache-path name="exports" path="exports/" />
+</paths>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+To add a new language, you can add the language to this file.
+The display name is the name of the language in that language.
+The file name is a name that contains no special characters,
+but only ASCII characters.
+Then run the test case "de.neemann.digital.lang.TestLang.testAdditionalLanguages".
+
+In the target directory you can now find a diff file for the
+new language. This diff file contains a list of English text
+fragments and a empty xml tag for the translated text fragment.
+Fill all the empty language tags.
+
+To import the translated text, start the class
+"de.neemann.digital.lang.LanguageUpdater" and select
+your diff file.
+
+In the future, each time the software is built, a new
+diff file will be created that contains all the new or
+modified keys.
+
+-->
+<languages>
+    <lang name="en" display="English" file="English"/>
+    <lang name="de" display="Deutsch" file="Deutsch"/>
+    <lang name="es" display="Español" file="Espanol"/>
+    <lang name="pt" display="Português" file="Portugues"/>
+    <lang name="fr" display="Français" file="Francais"/>
+    <lang name="it" display="Italiano" file="Italian"/>
+    <lang name="zh" display="简体中文" file="ChineseSimplified"/>
+</languages>

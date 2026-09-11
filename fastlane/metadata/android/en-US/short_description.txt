@@ -1,0 +1,1 @@
+A pocket digital-logic lab — breadboard, 74xx TTL chips, offline coursework.

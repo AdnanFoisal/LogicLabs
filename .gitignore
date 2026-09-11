@@ -1,0 +1,32 @@
+# --- Gradle / Android build outputs ---
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# --- Machine-local configuration ---
+local.properties
+
+# --- IDE ---
+.idea/
+*.iml
+captures/
+.kotlin/
+
+# --- OS artifacts ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs / crash dumps ---
+*.log
+*.hprof
+
+# --- Third-party reference clone ---
+# vendor/Digital is a cloned external repo that carries its own .git; tracking it here
+# would only create a broken gitlink. The extraction into :core-digital is first-party
+# code and fully tracked. The clone itself stays a standalone checkout on disk.
+vendor/

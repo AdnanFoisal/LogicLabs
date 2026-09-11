@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        VIBRATE backs the Haptics entry point. RECORD_AUDIO and CAMERA were declared
+        but referenced by no source file anywhere in the project — the console's click
+        and relay sounds are synthesized into AudioTrack, which is playback-only and
+        needs no permission — so they are gone rather than shipped as dead prompts.
+    -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:name=".LogicLabsApplication"
+        android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/LogicLabs.Theme">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density|fontScale"
+            android:theme="@style/LogicLabs.Theme.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Serves the exported PDF lab report out of cacheDir/reports/ so it can be
+            shared with ACTION_SEND without WRITE_EXTERNAL_STORAGE. Authority is
+            hardcoded here and mirrored by LabCertificatePdf.AUTHORITY.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.logiclabs.app.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

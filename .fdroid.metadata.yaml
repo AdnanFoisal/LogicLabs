@@ -1,0 +1,51 @@
+# Upstream metadata for F-Droid — see https://f-droid.org/docs/All_About_Descriptions_Updates_and_Tracking
+# and https://f-droid.org/en/docs/All_About_Descriptions_Updates_and_Tracking/
+#
+# This file follows the "upstream metadata" standard. To get this app packaged:
+#   1. Push this repo to a public git host (Codeberg / GitLab / GitHub)
+#   2. Fill SourceCode + IssueTracker below with the real URLs
+#   3. Tag the release:  git tag v1.1.0 && git push --tags
+#   4. File a Request For Packaging at https://codeberg.org/fdroid/rfp/issues
+Categories:
+  - Science & Education
+License: GPL-3.0-or-later
+AuthorName: Adnan Foisal
+AuthorWebSite: https://github.com/AdnanFoisal
+Name: Logic Labs
+Summary: A pocket digital-logic lab — breadboard, 74xx TTL chips, offline coursework.
+Description: |-
+  Logic Labs is a fully offline digital-logic laboratory: a faithful digital twin of
+  the K&H IDL-800A Digital Lab Trainer, with a Tinkercad-inspired 2.5D breadboard,
+  real 74xx TTL chips and a discrete-event simulation engine derived from
+  hneemann/Digital.
+
+  THE BENCH
+  • True AD-200 breadboard topology: 1,896 tie-points, four 64-column terminal
+  blocks, seven distribution rails, the DIP center trench
+  • Drag or tap-to-connect jumper wires with magnetic snapping, a 2.2× magnifier
+  loupe, haptics and ten insulation colours
+  • Datasheet-exact 74xx parts: 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432,
+  74266, 7483, 7486, 7474, 7476, 7448
+
+  THE CONSOLE
+  • 8 SPDT logic switches (SW0–SW7), 2 debounced pulsers, 8 buffered LEDs
+  • Stepped clock generator 0.5 Hz – 100 kHz, dual BCD 7-segment displays
+  • Optional PRACTICAL mode: reversed polarity and bus contention destroy chips
+
+  COURSEWORK & VERIFICATION
+  • Classic 5-lab university curriculum plus extended experiments (arithmetic,
+  converters, MUX/DEMUX, sequential circuits, DACs) with objective checklists
+  • One-tap truth-table verification sweeping the full 2^N input space, sealed
+  with an HMAC-SHA256 provenance hash, exportable as an A4 PDF certificate
+  • Boolean diagram view: the gate-level schematic of your build with live net
+  colouring and derived boolean expressions
+
+  100% offline. No network permission, no accounts, no tracking, no ads.
+
+  The simulation kernel is a headless extraction of the GPLv3 project
+  hneemann/Digital, which sets the license for the whole app.
+WebSite: https://github.com/AdnanFoisal
+SourceCode: https://github.com/AdnanFoisal/LogicLabs
+IssueTracker: https://github.com/AdnanFoisal/LogicLabs/issues
+Changelog: https://github.com/AdnanFoisal/LogicLabs/releases
+AutoName: Logic Labs
