@@ -20,6 +20,7 @@ captures/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.bat
 
 # --- Logs / crash dumps ---
 *.log
