@@ -21,10 +21,10 @@ Place datasheet-exact 74xx TTL integrated circuits onto a true-to-topology AD-20
 
 <div align="center">
 
-| 📱 Home & Coursework | ⚡ Full-Adder on the Bench | 📈 Real-Time Oscilloscope |
-| :---: | :---: | :---: |
-| <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01_home.png" width="270" alt="Home Screen"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02_bench_full_adder.png" width="270" alt="Bench Screen"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03_oscilloscope.png" width="270" alt="Oscilloscope Screen"> |
-| *Coursework progress & lab catalog* | *Interactive breadboard & console* | *Live dual-channel signal probing* |
+| ⚡ Virtual Workstation | 🎓 Guided Coursework | 📖 74xx IC Catalog | 💾 Projects & Persistence | 🎨 Instrument Themes |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01_breadboard_workstation.png" width="190" alt="AD-200 Breadboard Workstation"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02_guided_coursework.png" width="190" alt="Interactive Coursework"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03_ic_datasheets.png" width="190" alt="74xx IC Datasheets"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04_projects_dashboard.png" width="190" alt="Projects & Bench Stats"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05_themes_settings.png" width="190" alt="Hardware Themes & Settings"> |
+| *AD-200 breadboard, 8-colour wiring & real-time simulation* | *12 university lab units with dynamic truth tables* | *Datasheet-exact DIP-14 pinouts & gate schematics* | *Circuit manager, offline storage & lab time metrics* | *Obsidian Stealth, Amber CRT & tactile feedback* |
 
 </div>
 

@@ -1,30 +1,34 @@
-Logic Labs is a fully offline digital-logic laboratory: a digital twin of the K&H IDL-800A Digital Lab Trainer, with a 2.5D breadboard, datasheet-exact 74xx TTL chips and a discrete-event simulation engine derived from hneemann/Digital.
+Logic Labs is a professional digital electronics laboratory in your pocket: a faithful, 100% offline digital twin of the industry-standard K&H IDL-800A Digital Lab Trainer with an interactive AD-200 breadboard, datasheet-exact 74xx TTL integrated circuits, and a real-time discrete-event simulation engine.
 
-THE BREADBOARD
-• AD-200 topology: 1,896 tie-points, four 64-column terminal blocks, seven distribution rails and the DIP centre trench
-• Wire by hand: drag or tap-to-connect jumpers with magnetic snapping, a 2.2× magnifier loupe, haptic feedback and ten insulation colours
-• 14 datasheet-exact 74xx parts: 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432, 74266, 7483, 7486, 7474, 7476, 7448
-• In-app IC reference with pinouts for every chip
+FOUR DEDICATED LAB WORKSPACES
 
-THE CONSOLE
-• 8 logic switches (SW0–SW7), 2 debounced pulsers and 8 buffered LED monitors with afterglow
-• Detented clock generator from 0.5 Hz to 100 kHz
-• Dual BCD-driven seven-segment displays and a master power switch
-• Optional PRACTICAL mode: reversed polarity and bus contention can destroy chips, like on a real bench
+1. AD-200 BREADBOARD WORKSTATION
+• True-to-topology AD-200 breadboard with terminal tie-point blocks, continuous distribution power rails, and standard DIP centre trench
+• Dynamic 2.5D wire routing with 8 insulation colours (red, green, blue, yellow, white, purple, cyan, orange), magnetic pin snapping, and haptic feedback
+• Docked IDL-800A trainer console: 8 toggle switches (SW0–SW7), 8 buffered LED monitors (L0–L7) with phosphor afterglow, dual debounced pulsers, and detented clock generator (0.5 Hz to 100 kHz)
+• Interactive signal probe, dual-channel oscilloscope (CH1, CH2, DUAL modes), and live boolean gate-level schematic synthesizer
 
-INSTRUMENTS
-• Dual-channel oscilloscope: probe board and console signals, CH1 / CH2 / DUAL view, adjustable timebase and volts per division
-• Boolean diagram view: the gate-level schematic of your build, with live net colouring and derived boolean expressions per output
+2. STRUCTURED UNIVERSITY COURSEWORK
+• 12 comprehensive laboratory units spanning introductory logic gates to advanced sequential machines
+• Interactive schematics and dynamic truth tables for every core gate (NOT, AND, NAND, OR, NOR, XOR, XNOR)
+• Deep coverage: universal gate synthesis, half/full adders, arithmetic magnitude comparators, decoders, multiplexers, flip-flops, ripple counters, and digital-to-analog converters
+• One-tap automated truth-table verification that sweeps the full 2^N input vector space to validate circuit correctness instantly
 
-COURSEWORK & VERIFICATION
-• A classic university lab curriculum plus extended experiments: universal NAND/NOR builds, boolean simplification, adders and subtractors, code converters, decoders, comparators, multiplexers/demultiplexers, latches, flip-flops, ripple counters, discrete diode/RTL gates and a weighted-resistor D/A converter, each with objective checklists
-• One-tap truth-table verification sweeps the full input space; results carry an HMAC-SHA256 hash and can be exported as an A4 PDF certificate
+3. COMPLETE 74XX IC DATASHEET CATALOG
+• Instant in-app reference for 14 standard 74xx TTL chips: 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432, 74266, 7483, 7486, 7474, 7476, and 7448
+• Datasheet-exact DIP-14 dual-in-line package pinouts with colour-coded pin functions
+• Internal gate architecture diagrams and complete Boolean logic mapping per pin
 
-THEMES & FEEDBACK
-• Nine hardware themes (including Obsidian, Amber CRT, HP Slate, Cleanroom, Cyberpunk Neon, Tokyo Night, Solarized Dark, Vintage British Lab and Titanium Frost), or follow the system light/dark setting
-• Synthesized console sounds and haptics, individually toggleable — no bundled audio files
+4. SAVED PROJECTS & BENCH METRICS
+• Dedicated project manager with instant offline saving, autosave, and multi-circuit library
+• Live bench tracking: monitored lab completion, circuit count, and total bench hours
+• Plain JSON project export and import for sharing designs with classmates and instructors without proprietary lock-in
 
-100% OFFLINE
-No network permission. No accounts. No tracking. No ads. Projects are saved on your device with autosave and JSON import/export.
+INSTRUMENT-GRADE THEMES & TACTILE SENSORY
+• 9 authentic hardware instrument themes: Obsidian Stealth (AMOLED night bench), Amber CRT (vintage Tektronix phosphor), Solarized Dark, Vintage British Lab (deep forest enamel), HP Slate, Cleanroom, Cyberpunk Neon, Tokyo Night, and Titanium Frost
+• Synthesized runtime relay clicks, switch snaps, and precision haptics calibrated for physical hardware realism — zero audio assets bundled
 
-The simulation kernel is derived from the GPLv3 project hneemann/Digital, which sets the license for the whole app (GPL-3.0-or-later).
+100% OFFLINE & PRIVACY-FIRST
+• No internet permission (android.permission.INTERNET is completely absent)
+• Zero ads, zero trackers, zero telemetry, and no account requirements
+• Fully open source: simulation kernel derived from hneemann/Digital (GPL-3.0-or-later)
