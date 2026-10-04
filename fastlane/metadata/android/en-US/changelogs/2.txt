@@ -1,10 +1,10 @@
 First public release.
 
-• The full AD-200 breadboard with hand wiring: drag or tap-to-connect jumpers, magnetic snapping, magnifier loupe, ten insulation colours
-• 14 datasheet-exact 74xx chips, tri-state simulation, contention detection, optional PRACTICAL mode with chip destruction
-• Trainer console: 8 switches, 2 pulsers, 8 LEDs, 0.5 Hz–100 kHz clock, dual 7-segment displays
-• Classic 5-lab curriculum + 13 extended experiments with objective checklists
+• AD-200 breadboard with interactive wiring & loupe
+• 14 datasheet-exact 74xx TTL chips with tri-state logic & contention
+• Trainer console: 8 switches, 2 pulsers, 8 LEDs, clock & 7-seg displays
+• 5 classic labs & 13 extended experiments
 • Truth-table verifier with HMAC-SHA256 sealed PDF certificates
-• Boolean diagram view with live net colouring and derived expressions
-• 10 hardware themes, oscilloscope, saved projects, autosave, JSON import/export
+• Boolean diagram view with live net coloring
+• 10 hardware themes, oscilloscope & JSON project import/export
 • 100% offline, zero telemetry
