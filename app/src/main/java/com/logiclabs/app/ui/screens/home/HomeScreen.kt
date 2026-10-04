@@ -219,7 +219,9 @@ fun HomeScreen(
                     .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             )
     ) {
-        Masthead(onNewCircuit = { onContinue(BenchRequest.Sandbox) })
+        if (selectedTab == HomeTab.PROJECTS) {
+            Masthead(onNewCircuit = { onContinue(BenchRequest.Sandbox) })
+        }
 
         Box(
             modifier = Modifier
