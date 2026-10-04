@@ -229,6 +229,43 @@ app/build/outputs/apk/release/app-release-unsigned.apk
 
 ---
 
+## ⭐ Star & Support the Project
+
+If you find Logic Labs useful for your coursework, lab experiments, teaching, or hobby projects, **please star this repository** on GitHub! It helps more students, professors, and open-source engineers discover this free hardware simulation suite.
+
+<div align="center">
+
+[![Star on GitHub](https://img.shields.io/badge/⭐_Star_on_GitHub-Logic_Labs-F59E0B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AdnanFoisal/LogicLabs)
+[![Fork on GitHub](https://img.shields.io/badge/🍴_Fork_Repository-Logic_Labs-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AdnanFoisal/LogicLabs/fork)
+
+</div>
+
+---
+
+## 🤝 Contributing
+
+Contributions are warmly welcomed from electrical engineering students, university professors, lab instructors, and Android developers!
+
+### How You Can Help
+* 🐛 **Report Bugs & Simulation Edge-Cases:** Found an unexpected behavior in gate propagation, timing, or breadboard snapping? [Open an Issue](https://github.com/AdnanFoisal/LogicLabs/issues) with reproduction steps.
+* 🧩 **Implement New 74xx TTL ICs:** Want to add your favorite chip (e.g. `74138` 3-to-8 decoder, `74151` 8-to-1 MUX, `74161` synchronous counter, or `74193` up/down counter)? Check out `:core-bridge` and open a Pull Request!
+* 🎓 **Contribute Coursework Experiments:** Propose and design new laboratory experiments, interactive truth-table verification challenges, or preset circuits.
+* 💡 **UI/UX & Design:** Ideas for enhanced gestures, accessibility improvements, or new hardware console themes are always appreciated.
+
+### Contributing Workflow
+1. Fork the repository and create your feature branch:
+   ```bash
+   git checkout -b feature/my-new-74xx-chip
+   ```
+2. Make your changes and run the full test suite locally:
+   ```bash
+   ./gradlew test
+   ```
+3. Commit with concise, descriptive commit messages.
+4. Submit a Pull Request describing your additions!
+
+---
+
 ## 📜 License & Acknowledgements
 
 * **Application License:** [GNU General Public License v3.0 or later (GPL-3.0-or-later)](LICENSE).
