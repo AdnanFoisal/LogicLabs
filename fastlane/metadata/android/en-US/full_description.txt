@@ -1,21 +1,56 @@
-Logic Labs is a fully offline digital-logic laboratory: a faithful digital twin of the K&H IDL-800A Digital Lab Trainer, with a Tinkercad-inspired 2.5D breadboard, real 74xx TTL chips, and a discrete-event simulation engine derived from hneemann/Digital.
+Logic Labs is a comprehensive, 100% offline digital-logic laboratory: a faithful digital twin of the K&H IDL-800A Digital Lab Trainer, featuring a Tinkercad-inspired 2.5D breadboard, datasheet-accurate 74xx TTL integrated circuits, and a discrete-event simulation engine derived from hneemann/Digital.
 
-THE BENCH
-• True AD-200 breadboard topology: 1,896 tie-points, four 64-column terminal blocks, seven distribution rails, and the DIP center trench
-• Wire by hand: drag or tap-to-connect jumper wires with magnetic snapping, a 2.2× magnifier loupe, haptic feedback and ten insulation colours
-• Datasheet-exact 74xx parts: 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432, 74266, 7483, 7486, 7474, 7476, 7448
+Version: 1.0.4.4.4
 
-THE CONSOLE
-• 8 SPDT logic switches (SW0–SW7), 2 debounced pulsers, 8 buffered LED monitors with afterglow
-• Stepped clock generator from 0.5 Hz to 100 kHz, and dual BCD-driven seven-segment displays
-• Optional PRACTICAL simulation mode: reversed polarity and bus contention can destroy chips — wire your power rails like the real bench
+THE BREADBOARD (AD-200)
+• True AD-200 topology: 1,896 tie-points across four 64-column terminal blocks, seven distribution power rails, and the central DIP IC trench.
+• Interactive hand wiring: drag-to-wire or tap-to-connect jumpers with magnetic socket snapping.
+• 2.2x magnifier loupe for pinpoint wiring accuracy on small screens.
+• 10 insulation wire colors with realistic 2.5D sag geometry.
+• Wire management: select, delete, recolor, or inspect individual nets.
 
-COURSEWORK & VERIFICATION
-• The Classic 5-lab university curriculum plus extended experiments: universal-gate builds, adders and subtractors, code converters, multiplexers, sequential circuits, and DACs — each with objective checklists
-• One-tap truth-table verification sweeps the full input space and seals the report with an HMAC-SHA256 provenance hash; export an A4 PDF certificate
-• Boolean diagram view: flip to the gate-level schematic of whatever is on your breadboard, with live net colouring and derived boolean expressions per output
+DATASHEET-EXACT 74xx TTL ICs
+Place, rotate, and wire 14 real-world TTL integrated circuits:
+• 7400: Quad 2-input NAND gates
+• 7402: Quad 2-input NOR gates
+• 7404: Hex Inverters (NOT gates)
+• 7408: Quad 2-input AND gates
+• 7410: Triple 3-input NAND gates
+• 7411: Triple 3-input AND gates
+• 7420: Dual 4-input NAND gates
+• 7432: Quad 2-input OR gates
+• 7448: BCD to 7-Segment Decoder
+• 7474: Dual D-Type Edge-Triggered Flip-Flops (Preset/Clear)
+• 7476: Dual J-K Flip-Flops (Preset/Clear)
+• 7483: 4-Bit Binary Full Adder with Fast Carry
+• 7486: Quad 2-input XOR gates
+• 74266: Quad 2-input XNOR gates (Open-Collector)
+• Complete in-app pinout diagrams and functional truth tables for every IC.
 
-100% OFFLINE
-No network permission. No accounts. No tracking. No ads. Everything — engine, coursework and persistence — lives on your device.
+THE TRAINER CONSOLE (IDL-800A)
+• 8 SPDT toggle logic switches (SW0–SW7) with mechanical action.
+• 2 debounced momentary pulsers with complementary Q and Q_bar outputs.
+• 8 buffered LED monitors featuring persistence-of-vision and optical decay.
+• Stepped clock generator: 0.5 Hz, 1 Hz, 10 Hz, 100 Hz, 1 kHz, 10 kHz, and 100 kHz.
+• Dual BCD-driven 7-segment LED display modules.
+• Master bench power switch with VCC and GND rail control.
+• Two simulation modes: STANDARD (safe learning) and PRACTICAL (realistic reverse-polarity blowout and bus-contention burnout).
 
-The simulation kernel is a headless extraction of the GPLv3 project hneemann/Digital, which sets the license for the whole app (GPL-3.0-or-later).
+DIAGNOSTIC INSTRUMENTS
+• Real-time 2-channel Oscilloscope: tap any breadboard tie-point or console pin to probe signals with adjustable timebase, voltage scale, and edge triggering.
+• Boolean Diagram View: automatically renders the gate-level schematic of your breadboard circuit with live net coloring and boolean expressions.
+
+ACADEMIC COURSEWORK & VERIFICATION
+• 5 Classic University Labs: Basic Gates, Universal NAND/NOR Realization, Binary Adders, Multiplexers/Decoders, and Sequential Flip-Flops.
+• 13 Extended Experiments: Gray code converters, magnitude comparators, BCD arithmetic, shift registers, and weighted-resistor DACs.
+• One-tap Truth-Table Verifier: sweeps the full 2^N input space, validates functionality against courseware specs, and generates an HMAC-SHA256 sealed A4 PDF certificate.
+
+SENSORY & CUSTOMIZATION
+• 10 Hardware Themes: Obsidian Stealth, Amber CRT, HP Slate, Cleanroom White, Tektronix Blue, Cyberpunk Neon, and more.
+• Synthesized Audio & Haptics: mechanical switch clicks, relay snaps, and tactile feedback generated via AudioTrack without external audio files.
+
+PRIVACY & ARCHITECTURE
+• 100% Offline: zero network permissions (INTERNET permission is never requested).
+• Zero tracking, zero telemetry, zero analytics, zero ads.
+• Local-first project storage with autosave, crash recovery, and JSON export/import.
+• GPL-3.0-or-later license with full third-party notices.
