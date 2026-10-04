@@ -170,6 +170,53 @@ class LabPresetIntegrityTest {
         }
     }
 
+    @Test
+    fun everyClassicLabPassesItsOwnTruthTableThroughTheRealEngine() {
+        // The sealed-digest test above cannot catch this, and that is not a theoretical gap: the
+        // digest covers the sweep's *actual* outputs, so a preset whose declared `expectedFunction`
+        // disagrees with its own circuit still seals byte-perfectly and still passes. Two of the
+        // twelve shipped exactly that way — lab10_sr_latch reported the Set state for the forbidden
+        // ~S=~R=0 row, and lab11_d_flipflop described a transparent latch where the 7474 is
+        // positive-edge triggered — grading 2/4 and 3/4 in the app while this file stayed green.
+        //
+        // So the twelve get the same property check the extended presets already had: sweep the
+        // preset with the verifier the app uses, on a real BreadboardCircuit, and require every
+        // vector to match. This is an added assertion on top of the seal, not a replacement for it
+        // — the digest still catches simulation drift, which this cannot see.
+        val failures = mutableListOf<String>()
+
+        for (lab in LabCurriculum.classicLabs) {
+            val circuit = BreadboardCircuit()
+            lab.buildCircuit(circuit)
+
+            val report = TestBenchVerifier.verify(
+                circuit = circuit,
+                switchIndices = lab.switchIndices,
+                outputReader = { lab.ledIndices.map { circuit.ledValues[it] } },
+                expectedFunction = lab.expectedFunction,
+                inputNames = lab.inputLabels,
+                outputNames = lab.outputLabels,
+                experimentTitle = lab.title
+            )
+
+            if (!report.isAllPassed) {
+                val bits = { bs: List<Boolean> -> bs.joinToString("") { if (it) "1" else "0" } }
+                val detail = report.rows.filterNot { it.isPassed }.joinToString("\n") { row ->
+                    "        IN ${bits(row.inputValues)}  " +
+                        "expected ${bits(row.expectedOutputs)}  actual ${bits(row.actualOutputs)}"
+                }
+                failures += "    ${lab.id} (${lab.subtitle}) — " +
+                    "${report.passedCount}/${report.totalCount} vectors\n$detail"
+            }
+        }
+
+        assertTrue(
+            "Classic labs disagreed with their own declared truth tables:\n" +
+                failures.joinToString("\n"),
+            failures.isEmpty()
+        )
+    }
+
     private companion object {
         /**
          * Recorded from the engine at the start of the UI overhaul. See the class KDoc

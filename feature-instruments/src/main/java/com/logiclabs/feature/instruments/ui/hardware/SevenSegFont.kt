@@ -20,7 +20,15 @@ package com.logiclabs.feature.instruments.ui.hardware
  */
 object SevenSegFont {
 
-    /** Segment patterns for nibble values 0..15 (0-9 then A-F). */
+    /**
+     * Segment patterns for nibble values 0..15.
+     *
+     * 0-9 are the decimal font. 10-15 are the 7448's own decodes of codes the part was never
+     * meant to receive: they are not the letters A-F and do not spell anything, which is why
+     * they are not labelled as letters here. The TI SDLS111 data sheet prints those rows, and
+     * `exp18_bcd_seven_segment_7448` grades all sixteen of them, so the glyphs are reproduced
+     * rather than invented — 15 genuinely blanks the digit on a real part.
+     */
     val PATTERNS: IntArray = intArrayOf(
         0x3F, // 0
         0x06, // 1
@@ -32,12 +40,12 @@ object SevenSegFont {
         0x07, // 7
         0x7F, // 8
         0x6F, // 9
-        0x5C, // A (7448 legacy glyph)
-        0x4C, // b
-        0x46, // C
-        0x4D, // d
-        0x78, // E
-        0x00, // F (blank on a true 7448)
+        0x58, // 10 — d, e, g
+        0x4C, // 11 — c, d, g (the mirror of 10)
+        0x62, // 12 — b, f, g
+        0x69, // 13 — a, d, f, g
+        0x78, // 14 — d, e, f, g
+        0x00, // 15 — blank, as on a real 7448
     )
 
     /** Segment bitmask for [value]; anything outside 0..15 is masked to a nibble. */

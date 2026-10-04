@@ -1,0 +1,7 @@
+Logic Labs v1.1.1 update.
+
+• New detected-labs section: dynamic circuit matching against lab experiments
+• Lab relevance evaluator & verification workflow improvements
+• Refined breadboard viewport navigation & touch targets
+• Cleaned runtime dependencies & performance enhancements
+• Fully offline, zero telemetry, GPL-3.0-or-later

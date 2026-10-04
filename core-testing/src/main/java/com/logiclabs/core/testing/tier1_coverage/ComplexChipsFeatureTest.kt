@@ -425,18 +425,38 @@ class ComplexChipsFeatureTest {
     }
 
     @Test
-    fun test7448_NonBcdPatterns_HexC() {
+    fun test7448_NonBcdPatterns_InvalidCode() {
         val u1 = circuit.placeChip("7448", trench = 1, startColumn = 25)
         wire7448Standard(u1)
-        // 12 (0x0C) -> font7448[12] = 0x46 (b, c, g are HIGH)
+        // 12 (0x0C) is outside BCD. TI SDLS111 gives a=0, b=1, c=0, d=0, e=0, f=1, g=1 ->
+        // font7448[12] = 0x62: the two upper verticals plus the middle bar, NOT the b/c/g
+        // pattern this test used to pin.
         set7448Bcd(u1, 12)
         circuit.step()
 
         assertPinLevel(circuit, u1, 13, ElectricalLevel.LOW, "a is 0")
         assertPinLevel(circuit, u1, 12, ElectricalLevel.HIGH, "b is 1")
-        assertPinLevel(circuit, u1, 11, ElectricalLevel.HIGH, "c is 1")
+        assertPinLevel(circuit, u1, 11, ElectricalLevel.LOW, "c is 0")
         assertPinLevel(circuit, u1, 10, ElectricalLevel.LOW, "d is 0")
         assertPinLevel(circuit, u1, 9, ElectricalLevel.LOW, "e is 0")
+        assertPinLevel(circuit, u1, 15, ElectricalLevel.HIGH, "f is 1")
+        assertPinLevel(circuit, u1, 14, ElectricalLevel.HIGH, "g is 1")
+    }
+
+    @Test
+    fun test7448_NonBcdPatterns_InvalidCodeTen() {
+        // Code 10 is the row the old table got wrong in the other direction: it lit an extra
+        // segment c. TI SDLS111 gives d, e and g only.
+        val u1 = circuit.placeChip("7448", trench = 1, startColumn = 25)
+        wire7448Standard(u1)
+        set7448Bcd(u1, 10)
+        circuit.step()
+
+        assertPinLevel(circuit, u1, 13, ElectricalLevel.LOW, "a is 0")
+        assertPinLevel(circuit, u1, 12, ElectricalLevel.LOW, "b is 0")
+        assertPinLevel(circuit, u1, 11, ElectricalLevel.LOW, "c is 0")
+        assertPinLevel(circuit, u1, 10, ElectricalLevel.HIGH, "d is 1")
+        assertPinLevel(circuit, u1, 9, ElectricalLevel.HIGH, "e is 1")
         assertPinLevel(circuit, u1, 15, ElectricalLevel.LOW, "f is 0")
         assertPinLevel(circuit, u1, 14, ElectricalLevel.HIGH, "g is 1")
     }

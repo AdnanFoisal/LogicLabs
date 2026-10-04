@@ -38,10 +38,10 @@ Most mobile electronics apps use flat, 2D schematic symbols. Logic Labs simulate
 * **Tri-state awareness:** the engine simulates HIGH, LOW, high-impedance (Z) and **conflict burnout**. Wire two outputs together in PRACTICAL mode and the chips will burn out — route your power rails like the real bench.
 * **14 datasheet-exact 74xx parts:** 7400, 7402, 7404, 7408, 7410, 7411, 7420, 7432, 74266, 7483, 7486, 7474, 7476, 7448 — gates, flip-flops, adders and a BCD-to-seven-segment decoder.
 
-### 🎓 2. Cryptographic Academic Integrity
-* **Sealed truth-table verifier:** sweep the full input space of your build and seal the result with an **HMAC-SHA256 provenance hash**.
-* **PDF certificates:** export an A4 lab report of your working circuit. Perfect for professors grading remote lab work — no fake screenshots, just cryptographic proof of a working build.
-* **Coursework:** twelve sealed classic labs plus eighteen extended experiments — universal-gate builds, arithmetic, code converters, multiplexers, sequential circuits and DACs — each with objective checklists.
+### 🎓 2. Academic Integrity & Verification
+* **Sealed truth-table verifier:** sweep the full input space of your build and verify against lab specifications with an HMAC-SHA256 hash.
+* **PDF certificates:** export an A4 lab report of your working circuit with verification results, schematic, and truth table.
+* **Coursework:** 5 core university labs plus 13 extended experiments — universal-gate builds, arithmetic, code converters, decoders, multiplexers, sequential circuits, and DACs — each with objective checklists.
 
 ### 🎨 3. Sensory Engineering
 * **Persistence-of-vision:** LEDs simulate optical decay and afterglow when driven by high-frequency clocks.
@@ -69,7 +69,7 @@ Most mobile electronics apps use flat, 2D schematic symbols. Logic Labs simulate
 
 ## 🛠️ For Developers & Contributors
 
-Logic Labs is built with a **10-module Gradle architecture** to keep the codebase clean, testable and fast to build.
+Logic Labs is built with a **9-module Gradle architecture** to keep the codebase clean, testable and fast to build.
 
 ### Tech Stack
 * **UI:** Jetpack Compose, Canvas, Material 3
@@ -89,7 +89,6 @@ Logic Labs is built with a **10-module Gradle architecture** to keep the codebas
 | `:feature-breadboard` | The canvas: painters, geometry, gestures, hit-testing |
 | `:feature-instruments` | The console: rockers, LEDs, clock dial, seven-segment modules |
 | `:feature-tools` | Verifier, oscilloscope, courseware, certificates, feedback (sfx/haptics) |
-| `:hardware-hal` | Phone-sensor bridge for physical-input experiments |
 | `:core-testing` | Self-contained verification suites (tiered coverage) |
 
 ### Building from Source

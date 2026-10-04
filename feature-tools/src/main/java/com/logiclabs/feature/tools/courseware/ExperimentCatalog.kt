@@ -110,19 +110,22 @@ object ExperimentCatalog {
  */
 val LabExperiment.displayName: String
     get() = when (id) {
-        // Classic Labs (12)
-        "lab1_inverter" -> "Inverter / NOT Gate"
-        "lab2_and_gate" -> "AND Gate"
-        "lab3_or_gate" -> "OR Gate"
-        "lab4_nand_gate" -> "NAND Gate"
-        "lab5_nor_gate" -> "NOR Gate"
-        "lab6_xor_gate" -> "XOR Gate"
+        // Classic Labs (12) — ids taken from LabCurriculum.classicLabs, not from the lab numbers.
+        // The previous table listed a different twelve ("lab1_inverter", "lab8_full_adder",
+        // "lab11_bcd_decoder", …) that no preset has ever carried, so eleven of the twelve rows
+        // were dead and every classic lab fell through to its long `title`.
+        "lab1_not" -> "Inverter / NOT Gate"
+        "lab2_nand" -> "2-Input NAND Gate"
+        "lab3_nor" -> "2-Input NOR Gate"
+        "lab4_and" -> "2-Input AND Gate"
+        "lab5_or" -> "2-Input OR Gate"
+        "lab6_xor" -> "Exclusive-OR (XOR) Gate"
         "lab7_half_adder" -> "Half Adder Sum & Carry"
-        "lab8_full_adder" -> "Full Adder (7483)"
-        "lab9_d_flip_flop" -> "D Flip-Flop (7474)"
-        "lab10_jk_flip_flop" -> "JK Flip-Flop (7476)"
-        "lab11_bcd_decoder" -> "BCD to 7-Segment (7448)"
-        "lab12_quad_nand_latch" -> "SR Latch from NAND"
+        "lab8_nand_and" -> "AND Gate from NAND"
+        "lab9_nand_or" -> "OR Gate from NAND (De Morgan)"
+        "lab10_sr_latch" -> "SR Latch from NAND"
+        "lab11_d_flipflop" -> "D Flip-Flop (7474)"
+        "lab12_full_adder" -> "4-Bit Binary Full Adder (7483)"
 
         // Discrete Gate Labs (3)
         "exp01_diode_or" -> "Diode OR Gate"

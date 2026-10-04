@@ -113,6 +113,7 @@ import kotlinx.coroutines.launch
 fun VerifierDialog(
     report: TestBenchReport?,
     activeLabId: String?,
+    candidateMatches: List<LabRelevanceResult> = emptyList(),
     newBadges: List<Badge> = emptyList(),
     onSelectLab: (LabExperiment) -> Unit,
     onRetest: () -> Unit,
@@ -200,6 +201,17 @@ fun VerifierDialog(
                 if (report == null) {
                     item(key = "empty-hint") { EmptyResultHint() }
                 } else {
+                    item(key = "detected-labs", contentType = "relevance") {
+                        Column {
+                            DetectedLabsSection(
+                                candidates = candidateMatches,
+                                activeLabId = activeLabId,
+                                onSelectLab = onSelectLab
+                            )
+                            Spacer(Modifier.height(Dimens.Space2))
+                        }
+                    }
+
                     report.diagnostics.forEachIndexed { index, issue ->
                         item(key = "diag-$index", contentType = "diagnostic") {
                             Column {

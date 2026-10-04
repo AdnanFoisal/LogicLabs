@@ -732,9 +732,12 @@ class Chip7448 : AbstractChipModel("7448", "BCD-to-7-Segment Decoder", 16, 16, 8
 
     private val outputPins = listOf(13, 12, 11, 10, 9, 15, 14) // a, b, c, d, e, f, g
 
+    // Must stay byte-identical to Chip7448.font7448 in :core-bridge — this harness model is a
+    // second copy of the same part, so a divergence here would let a test disagree with the
+    // engine about the same chip. Codes 10-15 follow the TI SDLS111 data sheet.
     private val font7448 = intArrayOf(
         0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07,
-        0x7F, 0x6F, 0x5C, 0x4C, 0x46, 0x4D, 0x78, 0x00
+        0x7F, 0x6F, 0x58, 0x4C, 0x62, 0x69, 0x78, 0x00
     )
 
     override fun evaluate(

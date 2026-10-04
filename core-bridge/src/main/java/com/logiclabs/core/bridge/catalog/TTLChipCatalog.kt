@@ -736,9 +736,24 @@ class Chip7448 : AbstractChipModel("7448", "BCD-to-7-Segment Decoder", 16, 16, 8
 
     private val outputPins = listOf(13, 12, 11, 10, 9, 15, 14) // a, b, c, d, e, f, g
 
+    /**
+     * The 7448's segment ROM, bit 0 = segment a through bit 6 = segment g.
+     *
+     * Codes 0-9 are the decimal font. Codes 10-15 are outside BCD but the part still decodes
+     * them, and the TI SDLS111 data sheet prints those rows explicitly, so they are modelled
+     * rather than left as don't-care: 10 = d,e,g, 11 = c,d,g, 12 = b,f,g, 13 = a,d,f,g,
+     * 14 = d,e,f,g and 15 blanks the digit. Note that 10 and 11 are mirror images of each
+     * other and 12 is the pair of upper verticals plus the middle bar — the "resultant
+     * displays" the data sheet draws next to its truth table.
+     *
+     * The four entries at 0x5C, 0x46 and 0x4D were wrong: they lit segment c where the data
+     * sheet lights f (codes 12 and 13) and lit an extra c on code 10. That mattered because
+     * `exp18_bcd_seven_segment_7448` grades all sixteen codes and its description claims
+     * these are "the same odd non-digit patterns the real part shows".
+     */
     private val font7448 = intArrayOf(
         0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07,
-        0x7F, 0x6F, 0x5C, 0x4C, 0x46, 0x4D, 0x78, 0x00
+        0x7F, 0x6F, 0x58, 0x4C, 0x62, 0x69, 0x78, 0x00
     )
 
     override fun evaluate(

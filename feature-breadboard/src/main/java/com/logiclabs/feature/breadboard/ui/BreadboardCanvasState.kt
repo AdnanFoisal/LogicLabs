@@ -32,10 +32,37 @@ class BreadboardCanvasState {
     /** Zoom that fits the whole board across the measured viewport width. */
     val fitScale: MutableState<Float> = mutableStateOf(1f)
 
+    /**
+     * Zoom-out floor for the current viewport: the scale at which the whole board exactly fits
+     * inside it (`min(viewportW / boardW, viewportH / boardH)`).
+     *
+     * This is what replaced the bare [MIN_SCALE] constant. On a portrait phone the board is a
+     * 1740x945 landscape slab, so the width-fit scale is already only ~0.62 — the old floor of
+     * 0.4 let the user shrink it to ~64% of that, leaving a small board floating in a field of
+     * empty canvas on every side. Zooming out past "the whole board is visible" shows nothing
+     * new, so the floor now sits exactly there and moves with the pane.
+     */
+    val minZoom: MutableState<Float> = mutableStateOf(MIN_SCALE)
+
     /** Measured viewport, screen px. [Size.Zero] until the first layout pass. */
     val viewportSize: MutableState<Size> = mutableStateOf(Size.Zero)
 
     private var didFit = false
+
+    /**
+     * Scale at which [viewport] shows the entire board, or [MIN_SCALE] if it cannot be measured.
+     *
+     * `min` of the two axes is a *contain* fit: the board ends up flush against whichever pair of
+     * edges runs out first, and the other axis carries the letterbox. That letterbox is inherent
+     * to showing a landscape board on a portrait pane — the point is that it is symmetric and
+     * that the board can never be made smaller than it.
+     */
+    private fun wholeBoardFitScale(viewport: Size): Float {
+        val m = mapper ?: return MIN_SCALE
+        if (viewport.width <= 0f || viewport.height <= 0f) return MIN_SCALE
+        val fit = minOf(viewport.width / m.boardWidth(), viewport.height / m.boardHeight())
+        return fit.coerceIn(MIN_SCALE, MAX_SCALE)
+    }
 
     // --- In-progress wire ---------------------------------------------------------------------
     /** Socket the draft wire is anchored to — set by both tap-to-connect and drag-to-connect. */
@@ -70,16 +97,23 @@ class BreadboardCanvasState {
     var mapper: BreadboardGeometryMapper? = null
 
     /**
-     * Clamps panning so the board can never be scrolled past its own edges.
+     * Clamps panning so the board can never be scrolled out of the viewport.
      *
-     * * **Board larger than the viewport (zoomed in):** the top edge may never drop
-     *   below [EDGE_MARGIN] px and the bottom edge may never rise above
-     *   `viewport − EDGE_MARGIN` px — both instrument plates are always recoverable
-     *   with a pan and neither can be overscrolled into blank space (the old clamp
-     *   allowed the bottom edge 60px of under-scroll and, when zoomed out, pinned the
-     *   board to the top with all slack at the bottom). Same rule on the x axis.
-     * * **Board fits the viewport (zoomed out):** centred on both axes — there is
-     *   nothing to scroll to, and a locked/pegged pan is what made the fit feel broken.
+     * The two bounds are placed once and then simply ordered, which is what makes this rule
+     * behave correctly in both directions:
+     *
+     *  - `flushTop` is the pan that puts the board's top edge at [EDGE_MARGIN].
+     *  - `flushBottom` is the pan that puts its bottom edge at `viewport − EDGE_MARGIN`.
+     *
+     * When the board is *smaller* than the pane, `flushTop < flushBottom` and the board may be
+     * parked anywhere between those two — dragged up, dragged down, but never off the pane.
+     * When it is *larger*, the ordering reverses and the same two numbers become the travel
+     * limits of a scroll: you can reach the top edge and the bottom edge, and nothing beyond.
+     *
+     * The previous version hard-locked a fitting axis to dead centre instead. On a portrait
+     * phone the board is only ~587 px tall in a ~953 px pane, so "fits" was true for the whole
+     * first two steps of the zoom control: tapping + and dragging did *nothing at all*, which
+     * reads as a broken viewport rather than as a deliberate lock. Same rule on the x axis.
      */
     fun clampPan(candidate: Offset, currentScale: Float): Offset {
         val m = mapper ?: return candidate
@@ -87,29 +121,52 @@ class BreadboardCanvasState {
         if (vp == Size.Zero) return candidate
         val s = currentScale
 
-        val boardTop = m.boardTop
-        val boardBottom = m.boardBottom
-        val contentH = (boardBottom - boardTop) * s
-        val clampedY = if (contentH + 2f * EDGE_MARGIN <= vp.height) {
-            (vp.height - contentH) / 2f - boardTop * s
+        val flushTop = EDGE_MARGIN - m.boardTop * s
+        val flushBottom = (vp.height - EDGE_MARGIN) - m.boardBottom * s
+        val clampedY = if (flushTop <= flushBottom) {
+            candidate.y.coerceIn(flushTop, flushBottom)
         } else {
-            val maxPanY = EDGE_MARGIN - boardTop * s
-            val minPanY = (vp.height - EDGE_MARGIN) - boardBottom * s
-            candidate.y.coerceIn(minPanY, maxPanY)
+            candidate.y.coerceIn(flushBottom, flushTop)
         }
 
-        val boardLeft = m.boardLeft
-        val boardRight = m.boardRight
-        val contentW = (boardRight - boardLeft) * s
-        val clampedX = if (contentW + 2f * EDGE_MARGIN <= vp.width) {
-            (vp.width - contentW) / 2f - boardLeft * s
+        val flushLeft = EDGE_MARGIN - m.boardLeft * s
+        val flushRight = (vp.width - EDGE_MARGIN) - m.boardRight * s
+        val clampedX = if (flushLeft <= flushRight) {
+            candidate.x.coerceIn(flushLeft, flushRight)
         } else {
-            val maxPanX = EDGE_MARGIN - boardLeft * s
-            val minPanX = (vp.width - EDGE_MARGIN) - boardRight * s
-            candidate.x.coerceIn(minPanX, maxPanX)
+            candidate.x.coerceIn(flushRight, flushLeft)
         }
 
         return Offset(clampedX, clampedY)
+    }
+
+    /**
+     * Puts a fitting axis back in the middle and leaves an over-flowing one where it is.
+     *
+     * Called only when the pane itself changes size. [clampPan] deliberately allows free
+     * positioning inside the pane, which is right for a gesture — the board should follow the
+     * finger — but wrong for a layout change: if the console dock collapses and the pane grows
+     * 1000 px taller, keeping the old pan would dump all 1000 px of new space below the board.
+     * Re-centring the fitting axes is what stops a resize from stranding the board at one edge.
+     */
+    private fun recentreFittingAxes(s: Float) {
+        val m = mapper ?: return
+        val vp = viewportSize.value
+        if (vp == Size.Zero) return
+        val p = pan.value
+
+        val contentH = m.boardHeight() * s
+        val contentW = m.boardWidth() * s
+
+        val y = if (contentH + 2f * EDGE_MARGIN <= vp.height) {
+            (vp.height - contentH) / 2f - m.boardTop * s
+        } else p.y
+
+        val x = if (contentW + 2f * EDGE_MARGIN <= vp.width) {
+            (vp.width - contentW) / 2f - m.boardLeft * s
+        } else p.x
+
+        pan.value = clampPan(Offset(x, y), s)
     }
 
     /**
@@ -123,7 +180,7 @@ class BreadboardCanvasState {
     fun applyPinch(zoomChange: Float, panChange: Offset, centroid: Offset) {
         val old = scale.value
         if (old <= 0f) return
-        val next = (old * zoomChange).coerceIn(MIN_SCALE, MAX_SCALE)
+        val next = (old * zoomChange).coerceIn(minZoom.value, MAX_SCALE)
         val k = next / old
         val p = pan.value
         val rawPan = Offset(
@@ -146,20 +203,42 @@ class BreadboardCanvasState {
     }
 
     /**
-     * Records the measured viewport and, on the first pass only, fits the board to it.
+     * Records the measured viewport, re-derives the zoom floor from it, and fits the board on the
+     * first pass.
+     *
+     * ### Why the resize branch exists
+     * The pane is not a constant: the console dock expands and collapses, the context ribbon comes
+     * and goes, and the device rotates. This used to update [viewportSize] and nothing else, so the
+     * board stayed exactly where the *previous* pane had centred it. Measured on a 1080-wide pane:
+     *
+     *  - pane grows 900 -> 1900 px: the board keeps its old y, and the extra 1000 px all becomes
+     *    empty canvas, with the board stuck near the top (`blackAbove=192, blackBelow=1192`).
+     *  - pane shrinks 1900 -> 900 px: the board's bottom lands 308 px below the visible pane, and
+     *    because the board still fits vertically the axis is locked to centre — so it cannot be
+     *    panned back into view either.
+     *
+     * Both are the same missing line. Re-clamping on every size change fixes the grow case (the
+     * board re-centres) and the shrink case (the board is pulled back inside the pane), and the
+     * scale is lifted if the new pane raised the floor above it.
      */
     fun onViewportMeasured(size: Size, mapper: BreadboardGeometryMapper, circuit: BreadboardCircuit? = null) {
         if (size.width <= 0f || size.height <= 0f) return
         this.mapper = mapper
         val changed = size != viewportSize.value
         viewportSize.value = size
+        minZoom.value = wholeBoardFitScale(size)
+        fitScale.value = (size.width / mapper.boardWidth()).coerceIn(minZoom.value, MAX_SCALE)
 
-        val fit = (size.width / mapper.boardWidth()).coerceIn(MIN_SCALE, MAX_SCALE)
-        fitScale.value = fit
-
-        if (!didFit || changed && !didFit) {
+        if (!didFit) {
             didFit = true
             applyFit(mapper, circuit)
+            return
+        }
+
+        if (changed) {
+            val s = scale.value.coerceAtLeast(minZoom.value)
+            scale.value = s
+            recentreFittingAxes(s)
         }
     }
 
@@ -177,7 +256,7 @@ class BreadboardCanvasState {
         }
 
         if (bounds.width <= 0f || bounds.height <= 0f || vp.width <= 0f || vp.height <= 0f) {
-            val fit = fitScale.value
+            val fit = minZoom.value
             val boardBounds = mapper.boardBounds()
             val yGap = if (vp == Size.Zero) 0f else (vp.height - mapper.boardHeight() * fit) / 2f
             scale.value = fit
@@ -192,7 +271,12 @@ class BreadboardCanvasState {
 
         val fitX = vp.width / paddedWidth
         val fitY = vp.height / paddedHeight
-        val targetScale = minOf(fitX, fitY).coerceIn(MIN_SCALE, 2.0f)
+        // Ceiling keeps a small circuit from being auto-zoomed to the moon; floor is the
+        // whole-board fit, so the padding can never push the opening view below it. `cap` is
+        // raised to meet the floor rather than the two being coerced against each other, which
+        // would throw on a pane big enough to make the floor exceed 2x.
+        val cap = maxOf(AUTO_FIT_MAX_SCALE, minZoom.value)
+        val targetScale = minOf(fitX, fitY).coerceIn(minZoom.value, cap)
 
         scale.value = targetScale
         val cx = bounds.left - pad
@@ -289,8 +373,16 @@ class BreadboardCanvasState {
     }
 
     companion object {
-        const val MIN_SCALE = 0.4f
+        /**
+         * Absolute zoom-out guard for degenerate viewports (a 1 px pane during animation, a
+         * measurement taken before layout). The *effective* floor is [minZoom], which is derived
+         * from the board and the pane — never smaller than the whole board needs.
+         */
+        const val MIN_SCALE = 0.05f
         const val MAX_SCALE = 4.0f
+
+        /** Ceiling for the automatic opening fit, so a tiny circuit is not blown up to 4x. */
+        private const val AUTO_FIT_MAX_SCALE = 2.0f
 
         /** Screen px of breathing room between the board edges and the viewport when clamped. */
         private const val EDGE_MARGIN = 24f

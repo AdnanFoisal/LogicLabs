@@ -1,10 +1,10 @@
 First public release.
 
-• AD-200 breadboard with interactive wiring & loupe
-• 14 datasheet-exact 74xx TTL chips with tri-state logic & contention
-• Trainer console: 8 switches, 2 pulsers, 8 LEDs, clock & 7-seg displays
-• 5 classic labs & 13 extended experiments
-• Truth-table verifier with HMAC-SHA256 sealed PDF certificates
-• Boolean diagram view with live net coloring
-• 10 hardware themes, oscilloscope & JSON project import/export
-• 100% offline, zero telemetry
+• AD-200 breadboard with hand wiring and a magnifier loupe
+• 14 datasheet-exact 74xx TTL chips with contention detection
+• Console: 8 switches, 2 pulsers, 8 LEDs, 0.5 Hz–100 kHz clock, 7-segment displays
+• Lab curriculum with objective checklists
+• Truth-table verifier with PDF certificate export
+• Boolean diagram view and dual-channel oscilloscope
+• Nine themes, autosave, JSON import/export
+• 100% offline, no tracking

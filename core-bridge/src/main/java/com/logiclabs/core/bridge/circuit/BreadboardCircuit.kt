@@ -393,6 +393,39 @@ class BreadboardCircuit {
         rebuildNetlist()
     }
 
+    /**
+     * Creates an isolated deep snapshot of this circuit's placed ICs, wires, passives,
+     * and control peripheral states. The returned circuit can be simulated, stepped, or
+     * mutated on background threads without racing against the active UI render loop.
+     */
+    fun snapshot(): BreadboardCircuit {
+        val copy = BreadboardCircuit()
+        copy.masterPower = this.masterPower
+        copy.simulationMode = this.simulationMode
+        for (chip in this.placedChips) {
+            val model = TTLChipCatalog.create(chip.placedIc.partNumber) ?: continue
+            val placed = PlacedChipRuntime(
+                chip.placedIc.copy(),
+                model,
+                chip.internalState
+            )
+            copy.placedChips.add(placed)
+        }
+        copy.wires.addAll(this.wires)
+        copy.passives.addAll(this.passives)
+        for (i in 0 until 8) {
+            copy.switches[i] = this.switches[i]
+        }
+        copy.pulserAPressed = this.pulserAPressed
+        copy.pulserBPressed = this.pulserBPressed
+        copy.clockFrequencyHz = this.clockFrequencyHz
+        copy.clockRunning = this.clockRunning
+        copy.clockState = this.clockState
+        copy.rebuildNetlist()
+        copy.step()
+        return copy
+    }
+
     fun rebuildNetlist() {
         dsu.resetToBase()
 

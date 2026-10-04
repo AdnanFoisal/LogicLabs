@@ -38,4 +38,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Viewport clamping is pure geometry over BreadboardCanvasState, so it is unit-testable
+    // without a device or an Android host.
+    testImplementation(libs.junit)
 }

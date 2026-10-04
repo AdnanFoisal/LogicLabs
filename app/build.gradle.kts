@@ -12,8 +12,8 @@ android {
         applicationId = "com.logiclabs.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -58,8 +58,6 @@ dependencies {
     implementation(project(":feature-breadboard"))
     implementation(project(":feature-instruments"))
     implementation(project(":feature-tools"))
-    implementation(project(":hardware-hal"))
-    implementation(project(":core-testing"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

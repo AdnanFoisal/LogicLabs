@@ -436,15 +436,31 @@ object LabCurriculum {
                 LabObjective("obj3", "Monitor Q and ~Q", "Pin 3 to LED0; Pin 6 to LED1"),
                 LabObjective("obj4", "Verify Latch Memory", "Pulse ~S to 0 to Set; pulse ~R to 0 to Reset; keep 11 to hold state")
             ),
+            // Table for an active-LOW cross-coupled NAND latch, read on LED0 (Q) and LED1 (~Q).
+            //
+            // Three of the four rows are facts about the gates alone and hold whatever the latch
+            // was storing before:
+            //   ~S=0, ~R=1 -> Set:   1Y = NAND(0, ~Q) = 1 forces Q=1, ~Q=0
+            //   ~S=1, ~R=0 -> Reset: 2Y = NAND(0, Q)  = 1 forces Q=0, ~Q=1
+            //   ~S=0, ~R=0 -> Forbidden: both gates see a 0 input, so BOTH outputs are forced
+            //                 HIGH at once and Q and ~Q read 1 together. The previous table
+            //                 reported the Set state here, which is simply not what the gates do,
+            //                 and it cost this lab 2 of its 4 vectors.
+            //
+            // The fourth row, ~S=1, ~R=1, is Hold, and unlike the other three it does depend on
+            // history. buildCircuit settles it rather than leaving it to chance: it pulses ~Reset
+            // before releasing the inputs, so the latch is storing a 0 when the board loads. Hold
+            // therefore reproduces the Reset state (0,1) — and it stays true during the verifier's
+            // sweep, because the Reset row immediately precedes it in ascending vector order.
             expectedFunction = { inputs ->
-                // ~S=0, ~R=1 -> Q=1, ~Q=0 (Set)
-                // ~S=1, ~R=0 -> Q=0, ~Q=1 (Reset)
-                // ~S=1, ~R=1 -> Hold (treated as stable 1,0 or 0,1)
                 val setLow = !inputs[0]
                 val resetLow = !inputs[1]
-                if (setLow && !resetLow) listOf(true, false)
-                else if (!setLow && resetLow) listOf(false, true)
-                else listOf(true, false)
+                when {
+                    setLow && resetLow -> listOf(true, true)   // forbidden: both outputs HIGH
+                    setLow -> listOf(true, false)              // Set
+                    resetLow -> listOf(false, true)            // Reset
+                    else -> listOf(false, true)                // Hold: preloaded to the Reset state
+                }
             },
             buildCircuit = { circuit ->
                 circuit.clearAll()
@@ -468,7 +484,15 @@ object LabCurriculum {
                 circuit.addWire(chip.getPinSocket(3), AD200Topology.TERM_LED0, WireColor.GREEN)
                 circuit.addWire(chip.getPinSocket(6), AD200Topology.TERM_LED1, WireColor.WHITE)
 
-                // Default state: ~S=1, ~R=1 (quiescent hold)
+                // Deterministic preload. The Hold row of the truth table is the one row a
+                // cross-coupled latch cannot answer on its own, so the board is put into a known
+                // state instead of being left to the relaxation solver's landing point: assert
+                // ~Reset for one step to force Q = 0, then release both inputs and settle. The
+                // student now loads a latch that is provably storing a 0, which is what makes
+                // "keep 11 to hold state" a fact rather than a coin toss.
+                circuit.switches[0] = true
+                circuit.switches[1] = false
+                circuit.step()
                 circuit.switches[0] = true
                 circuit.switches[1] = true
                 circuit.step()
@@ -494,7 +518,35 @@ object LabCurriculum {
                 LabObjective("obj4", "Wire Complementary Outputs", "Connect 1Q (Pin 5) to LED0 and ~1Q (Pin 6) to LED1"),
                 LabObjective("obj5", "Verify Edge-Triggered Transfer", "Toggle CLK 0 -> 1 and verify data latching")
             ),
-            expectedFunction = { inputs -> listOf(inputs[0], !inputs[0]) },
+            // A positive-edge-triggered register has no combinational truth table, and the one
+            // written here before pretended it did: `listOf(inputs[0], !inputs[0])` asserted that
+            // Q follows D on every row, i.e. that the 7474 is a transparent latch. It is not —
+            // Chip7474.evaluate only transfers D when the clock pin goes LOW -> HIGH — and the
+            // lab failed its own sweep on vector 10, where D is high but CLK is low.
+            //
+            // The honest table says what the part does: Q moves on a rising clock edge and holds
+            // everywhere else. Two consequences follow, both of which the comments below pin down
+            // rather than leave to luck:
+            //
+            //  - The rows with CLK = 0 are *hold* rows: they describe the register's stored bit,
+            //    not a function of D. Traced against Chip7474.evaluate and the verifier's one-step-
+            //    per-vector ascending sweep, with the register preloaded to 0 by buildCircuit:
+            //        v=0  D=0 CLK=1->0  falling edge -> holds the preloaded 0
+            //        v=1  D=0 CLK=0->1  rising edge  -> captures D = 0
+            //        v=2  D=1 CLK=1->0  falling edge -> holds the 0 captured at v=1
+            //        v=3  D=1 CLK=0->1  rising edge  -> captures D = 1
+            //    v=0 is decided by the preload and v=2 by the capture in v=1, so no row depends on
+            //    state from before the sweep started — the same contract Experiment 11's counter
+            //    table is written under.
+            //  - Which means the only way Q reads 1 is a rising edge taken while D is high. That is
+            //    the whole lesson of the lab made checkable: dropping D while the clock sits low
+            //    (v=2) must *not* move Q, and it does not.
+            expectedFunction = { inputs ->
+                val d = inputs[0]
+                val clk = inputs[1]
+                val q = clk && d
+                listOf(q, !q)
+            },
             buildCircuit = { circuit ->
                 circuit.clearAll()
                 circuit.masterPower = true
@@ -517,8 +569,17 @@ object LabCurriculum {
                 circuit.addWire(chip.getPinSocket(5), AD200Topology.TERM_LED0, WireColor.GREEN)
                 circuit.addWire(chip.getPinSocket(6), AD200Topology.TERM_LED1, WireColor.BLUE)
 
-                circuit.switches[0] = true
-                circuit.switches[1] = true
+                // Deterministic preload. The two CLK = 0 rows of the truth table are Hold rows, so
+                // the register has to start from a known bit rather than from whatever level the
+                // model happened to see first — the initial `previousLevels` for the clock pin is
+                // not LOW, so a bare "switch both high then step" captures nothing and leaves Q = 0
+                // only by accident of that detail. Parking D and CLK low and stepping settles the
+                // register in Hold with Q = 0, and because the clock pin is now genuinely LOW the
+                // sweep's first rising edge is a real LOW -> HIGH transition rather than a
+                // first-sample artifact. The board loads clock-down and output-low, which is also
+                // the state a student expects to start stepping from.
+                circuit.switches[0] = false
+                circuit.switches[1] = false
                 circuit.step()
             }
         ),

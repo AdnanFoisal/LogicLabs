@@ -48,7 +48,11 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.font.FontFamily
 import com.logiclabs.core.data.persistence.CircuitShareBytecode
+import com.logiclabs.app.ui.verify.LabRelevanceEvaluator
+import com.logiclabs.app.ui.verify.LabRelevanceResult
+import kotlinx.coroutines.isActive
 import com.logiclabs.core.designsystem.theme.SurfaceCard
+import com.logiclabs.core.bridge.circuit.BreadboardCircuit
 import com.logiclabs.core.bridge.topology.AD200Topology
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -149,6 +153,8 @@ fun LogicLabsMainScreen(
     var activeLab by remember { mutableStateOf<LabExperiment?>(null) }
     var report by remember { mutableStateOf<TestBenchReport?>(null) }
     var newBadges by remember { mutableStateOf<List<Badge>>(emptyList()) }
+    var candidateMatches by remember { mutableStateOf<List<LabRelevanceResult>>(emptyList()) }
+    var relevanceJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     // Project context: non-null while the bench is backed by a saved (or about-to-be
     // saved) project file. Labs and the sandbox clear it; opening a project sets it.
@@ -314,26 +320,102 @@ fun LogicLabsMainScreen(
 
     /**
      * Seals one report. Verifies against the loaded lab when there is one, otherwise
-     * against whichever curriculum lab matches the first placed chip — the same fallback
-     * the bench has always used, so an unguided build still gets a meaningful sweep.
+     * against whichever curriculum lab best matches the placed ICs and I/O topology.
+     *
+     * Supports arbitrary switch selections (SW0..SW7) and arbitrary LED indicators (LED0..LED7),
+     * ensuring real-world trainer flexibility without false "floating" diagnostics or cross-switch
+     * interference.
      */
     fun runVerification() {
+        val connectedSwitches = (0..7).filter { circuit.dsu.getNetSize(AD200Topology.TERM_SW0 + it) > 1 }
+        val connectedLeds = (0..7).filter { circuit.dsu.getNetSize(AD200Topology.TERM_LED0 + it) > 2 }
+
         val lab = activeLab ?: run {
-            val firstChip = circuit.placedChips.firstOrNull()?.placedIc?.partNumber
-            // Searches classicLabs first by construction — ExperimentCatalog.allLabs puts the
-            // twelve sealed labs ahead of the extended ones — so an unguided 7400 build still
-            // falls back to lab2_nand rather than to an extended experiment that also uses it.
-            ExperimentCatalog.allLabs.find { it.targetChips.contains(firstChip) }
-                ?: LabCurriculum.classicLabs[1]
+            val placedChips = circuit.placedChips.map { it.placedIc.partNumber }
+            findBestMatchingLab(placedChips, connectedSwitches.size, connectedLeds.size, circuit, connectedSwitches, connectedLeds)
         }
+
+        val fallbackSwitches = if (connectedSwitches.isEmpty()) {
+            lab.switchIndices
+        } else if (connectedSwitches.size >= lab.switchIndices.size) {
+            if (lab.switchIndices.all { it in connectedSwitches }) lab.switchIndices else connectedSwitches.take(lab.switchIndices.size)
+        } else {
+            val padded = connectedSwitches.toMutableList()
+            for (sw in lab.switchIndices) {
+                if (padded.size >= lab.switchIndices.size) break
+                if (sw !in padded) padded.add(sw)
+            }
+            var candidate = 0
+            while (padded.size < lab.switchIndices.size && candidate < 8) {
+                if (candidate !in padded) padded.add(candidate)
+                candidate++
+            }
+            padded
+        }
+
+        val fallbackLeds = if (connectedLeds.isEmpty()) {
+            lab.ledIndices
+        } else if (connectedLeds.size >= lab.ledIndices.size) {
+            if (lab.ledIndices.all { it in connectedLeds }) lab.ledIndices else connectedLeds.take(lab.ledIndices.size)
+        } else {
+            val padded = connectedLeds.toMutableList()
+            for (led in lab.ledIndices) {
+                if (padded.size >= lab.ledIndices.size) break
+                if (led !in padded) padded.add(led)
+            }
+            var candidate = 0
+            while (padded.size < lab.ledIndices.size && candidate < 8) {
+                if (candidate !in padded) padded.add(candidate)
+                candidate++
+            }
+            padded
+        }
+
+        val (effectiveSwitches, effectiveLeds, _) = discoverBestIoMapping(
+            circuit = circuit,
+            connectedSwitches = connectedSwitches,
+            connectedLeds = connectedLeds,
+            requiredSwitchCount = lab.switchIndices.size,
+            requiredLedCount = lab.ledIndices.size,
+            expectedFunction = lab.expectedFunction,
+            fallbackSwitches = fallbackSwitches,
+            fallbackLeds = fallbackLeds
+        )
+
+        // Update labels dynamically to reflect the user's actual chosen switches and LEDs
+        val dynamicInputLabels = lab.inputLabels.mapIndexed { idx, label ->
+            val expectedSw = lab.switchIndices.getOrNull(idx) ?: idx
+            val actualSw = effectiveSwitches.getOrNull(idx) ?: expectedSw
+            if (label.contains("SW$expectedSw")) {
+                label.replace("SW$expectedSw", "SW$actualSw")
+            } else if (label.contains("SW")) {
+                label
+            } else {
+                "$label (SW$actualSw)"
+            }
+        }
+
+        val dynamicOutputLabels = lab.outputLabels.mapIndexed { idx, label ->
+            val expectedLed = lab.ledIndices.getOrNull(idx) ?: idx
+            val actualLed = effectiveLeds.getOrNull(idx) ?: expectedLed
+            if (label.contains("LED$expectedLed")) {
+                label.replace("LED$expectedLed", "LED$actualLed")
+            } else if (label.contains("LED")) {
+                label
+            } else {
+                "$label (LED$actualLed)"
+            }
+        }
+
         val sealed = TestBenchVerifier.verify(
             circuit = circuit,
-            switchIndices = lab.switchIndices,
-            outputReader = { lab.ledIndices.map { circuit.ledValues[it] } },
+            switchIndices = effectiveSwitches,
+            outputReader = { effectiveLeds.map { circuit.ledValues[it] } },
             expectedFunction = lab.expectedFunction,
-            inputNames = lab.inputLabels,
-            outputNames = lab.outputLabels,
-            experimentTitle = lab.title
+            inputNames = dynamicInputLabels,
+            outputNames = dynamicOutputLabels,
+            experimentTitle = lab.title,
+            ledIndices = effectiveLeds
         )
         // The sweep left the switches wherever the last vector put them; republish so the
         // console shows the board's real state rather than a stale mirror.
@@ -350,14 +432,30 @@ fun LogicLabsMainScreen(
         } else {
             newBadges = emptyList()
         }
+
+        relevanceJob?.cancel()
+        val evalSnapshot = circuit.snapshot()
+        relevanceJob = scope.launch(kotlinx.coroutines.Dispatchers.Default) {
+            val matches = LabRelevanceEvaluator.evaluateRelevance(
+                circuit = evalSnapshot,
+                candidateLabs = ExperimentCatalog.allLabs,
+                isCancelled = { !isActive }
+            )
+            if (!isActive) return@launch
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                candidateMatches = matches
+            }
+        }
     }
 
     fun loadLab(lab: LabExperiment) {
+        relevanceJob?.cancel()
         activeLab = lab
         currentProjectId = null
         currentProjectTitle = null
         bench.clearSelection()
         report = null
+        candidateMatches = emptyList()
         bench.lastVerificationPassed = null
         bench.driveTopology {
             it.clearAll()
@@ -806,6 +904,7 @@ fun LogicLabsMainScreen(
         Overlay.VERIFIER -> VerifierDialog(
             report = report,
             activeLabId = activeLab?.id,
+            candidateMatches = candidateMatches,
             newBadges = newBadges,
             onSelectLab = { lab ->
                 activeLab = lab
@@ -821,9 +920,11 @@ fun LogicLabsMainScreen(
                 bench.overlay = Overlay.NONE
             },
             onResetBoard = {
+                relevanceJob?.cancel()
                 bench.driveTopology { it.clearAll() }
                 activeLab = null
                 report = null
+                candidateMatches = emptyList()
                 bench.lastVerificationPassed = null
                 bench.overlay = Overlay.NONE
             },
@@ -1179,5 +1280,257 @@ private fun ShareCircuitDialog(
             BenchDialogAction("DISMISS", onDismiss, tone = BenchDialogTone.NEUTRAL)
         }
     )
+}
+
+/**
+ * Resolves the best-matching curriculum lab for an unguided circuit build.
+ *
+ * Checks all labs in [ExperimentCatalog.allLabs] whose required [LabExperiment.targetChips]
+ * are present on the breadboard, scoring them by chip-type specificity, matching I/O
+ * terminal counts (switches and LEDs), and simulated truth table concordance.
+ */
+internal fun findBestMatchingLab(
+    placedChips: List<String>,
+    connectedSwitchCount: Int,
+    connectedLedCount: Int,
+    circuit: BreadboardCircuit? = null,
+    connectedSwitches: List<Int> = emptyList(),
+    connectedLeds: List<Int> = emptyList()
+): LabExperiment {
+    val placedSet = placedChips.toSet()
+    if (placedSet.isEmpty()) return LabCurriculum.classicLabs[1]
+
+    val candidates = ExperimentCatalog.allLabs.filter { lab ->
+        lab.targetChips.isNotEmpty() && lab.targetChips.all { it in placedSet }
+    }
+
+    if (candidates.isEmpty()) {
+        return ExperimentCatalog.allLabs.find { lab ->
+            lab.targetChips.any { it in placedSet }
+        } ?: LabCurriculum.classicLabs[1]
+    }
+
+    return candidates.maxByOrNull { lab ->
+        var score = 0
+        val labChipSet = lab.targetChips.toSet()
+        if (labChipSet == placedSet) score += 1000
+        score += lab.targetChips.size * 100
+        if (connectedSwitchCount > 0) {
+            val diff = kotlin.math.abs(lab.switchIndices.size - connectedSwitchCount)
+            score += (8 - diff) * 20
+        }
+        if (connectedLedCount > 0) {
+            val diff = kotlin.math.abs(lab.ledIndices.size - connectedLedCount)
+            score += (8 - diff) * 10
+        }
+
+        // Non-canonical / academic "unsimplified" comparison experiments should not supersede
+        // standard primary circuits (such as Full Adders or standard decoders) unless 100% matched.
+        if (lab.id.contains("unsimplified")) {
+            score -= 200
+        }
+
+        // Prefer the group's default/primary variation (e.g. Sum over Carry) unless a secondary variation is 100% verified
+        val isDefaultVariation = ExperimentCatalog.groupOf(lab.id)?.default?.id == lab.id
+        if (isDefaultVariation) {
+            score += 50
+        }
+
+        // If circuit is supplied and has connected I/O, evaluate simulated truth table concordance
+        if (circuit != null && (connectedSwitches.isNotEmpty() || connectedLeds.isNotEmpty())) {
+            val fallbackSw = if (connectedSwitches.size >= lab.switchIndices.size) connectedSwitches.take(lab.switchIndices.size) else lab.switchIndices
+            val fallbackLed = if (connectedLeds.size >= lab.ledIndices.size) connectedLeds.take(lab.ledIndices.size) else lab.ledIndices
+
+            val (_, _, matchingRows) = discoverBestIoMapping(
+                circuit = circuit,
+                connectedSwitches = connectedSwitches,
+                connectedLeds = connectedLeds,
+                requiredSwitchCount = lab.switchIndices.size,
+                requiredLedCount = lab.ledIndices.size,
+                expectedFunction = lab.expectedFunction,
+                fallbackSwitches = fallbackSw,
+                fallbackLeds = fallbackLed
+            )
+
+            val n = lab.switchIndices.size.coerceIn(1, 8)
+            val vectorCount = 1 shl n
+
+            if (matchingRows == vectorCount) {
+                score += 10000 + vectorCount * 50 // Exact functional match, prioritized by vector depth
+            } else {
+                score += matchingRows * 10
+            }
+        }
+
+        score
+    } ?: candidates.first()
+}
+
+/**
+ * Discovers the optimal mapping between physical breadboard terminals (switches and LEDs)
+ * and the logical inputs/outputs of a target experiment.
+ *
+ * Supports arbitrary switch placement (SW0..SW7), arbitrary LED indicators (LED0..LED7),
+ * non-canonical wiring permutations (e.g. SW7 as MSB, swapped SUM/CARRY outputs),
+ * and isolates unused connected terminals to prevent spurious signal injection.
+ *
+ * @return Triple containing (resolvedSwitchIndices, resolvedLedIndices, passedVectorCount).
+ */
+internal fun discoverBestIoMapping(
+    circuit: BreadboardCircuit,
+    connectedSwitches: List<Int>,
+    connectedLeds: List<Int>,
+    requiredSwitchCount: Int,
+    requiredLedCount: Int,
+    expectedFunction: (List<Boolean>) -> List<Boolean>,
+    fallbackSwitches: List<Int>,
+    fallbackLeds: List<Int>
+): Triple<List<Int>, List<Int>, Int> {
+    val n = requiredSwitchCount.coerceIn(1, 8)
+    val vectorCount = 1 shl n
+
+    // 1. Build candidate switch sets
+    val swCombinations: List<List<Int>> = if (connectedSwitches.size >= n) {
+        generateCombinations(connectedSwitches, n)
+    } else {
+        val padded = connectedSwitches.toMutableList()
+        for (sw in fallbackSwitches) {
+            if (padded.size >= n) break
+            if (sw !in padded) padded.add(sw)
+        }
+        var c = 0
+        while (padded.size < n && c < 8) {
+            if (c !in padded) padded.add(c)
+            c++
+        }
+        listOf(padded)
+    }
+
+    val swCandidates: List<List<Int>> = swCombinations.flatMap { comb ->
+        when {
+            n <= 3 -> generatePermutations(comb)
+            n == 4 && swCombinations.size <= 15 -> generatePermutations(comb)
+            else -> listOf(comb, comb.reversed())
+        }
+    }
+
+    // 2. Build candidate LED sets
+    val ledCombinations: List<List<Int>> = if (connectedLeds.size >= requiredLedCount) {
+        generateCombinations(connectedLeds, requiredLedCount)
+    } else {
+        val padded = connectedLeds.toMutableList()
+        for (led in fallbackLeds) {
+            if (padded.size >= requiredLedCount) break
+            if (led !in padded) padded.add(led)
+        }
+        var c = 0
+        while (padded.size < requiredLedCount && c < 8) {
+            if (c !in padded) padded.add(c)
+            c++
+        }
+        listOf(padded)
+    }
+
+    val ledCandidates: List<List<Int>> = ledCombinations.flatMap { comb ->
+        if (requiredLedCount <= 2) generatePermutations(comb) else listOf(comb, comb.reversed())
+    }
+
+    val origSwitches = circuit.switches.copyOf()
+
+    // 3. Fast path: check if fallback mapping already passes 100%
+    if (fallbackSwitches.size == n && fallbackLeds.size == requiredLedCount) {
+        for (i in circuit.switches.indices) {
+            if (i !in fallbackSwitches) circuit.switches[i] = false
+        }
+        var fallbackPassCount = 0
+        for (v in 0 until vectorCount) {
+            val inputs = mutableListOf<Boolean>()
+            for (i in 0 until n) {
+                val bit = ((v shr (n - 1 - i)) and 1) == 1
+                inputs.add(bit)
+                circuit.switches[fallbackSwitches[i]] = bit
+            }
+            circuit.step()
+            val actual = fallbackLeds.map { circuit.ledValues[it] }
+            if (actual == expectedFunction(inputs)) fallbackPassCount++
+        }
+        if (fallbackPassCount == vectorCount) {
+            System.arraycopy(origSwitches, 0, circuit.switches, 0, origSwitches.size)
+            circuit.step()
+            return Triple(fallbackSwitches, fallbackLeds, vectorCount)
+        }
+    }
+
+    // 4. Search candidate switch and LED combinations/permutations
+    var bestSw = fallbackSwitches
+    var bestLed = fallbackLeds
+    var bestMatchingRows = 0
+
+    searchLoop@ for (candSw in swCandidates) {
+        for (candLed in ledCandidates) {
+            for (i in circuit.switches.indices) {
+                if (i !in candSw) circuit.switches[i] = false
+            }
+            var matchingRows = 0
+            for (v in 0 until vectorCount) {
+                val inputs = mutableListOf<Boolean>()
+                for (i in 0 until n) {
+                    val bit = ((v shr (n - 1 - i)) and 1) == 1
+                    inputs.add(bit)
+                    circuit.switches[candSw[i]] = bit
+                }
+                circuit.step()
+                val actual = candLed.map { circuit.ledValues[it] }
+                if (actual == expectedFunction(inputs)) {
+                    matchingRows++
+                } else if (matchingRows + (vectorCount - 1 - v) <= bestMatchingRows) {
+                    // Prune early if this candidate cannot exceed current best
+                    break
+                }
+            }
+
+            if (matchingRows > bestMatchingRows) {
+                bestMatchingRows = matchingRows
+                bestSw = candSw
+                bestLed = candLed
+            }
+            if (bestMatchingRows == vectorCount) break@searchLoop
+        }
+    }
+
+    System.arraycopy(origSwitches, 0, circuit.switches, 0, origSwitches.size)
+    circuit.step()
+
+    return Triple(bestSw, bestLed, bestMatchingRows)
+}
+
+/**
+ * Generates all combinations of size [k] from [list].
+ */
+internal fun <T> generateCombinations(list: List<T>, k: Int): List<List<T>> {
+    if (k <= 0) return listOf(emptyList())
+    if (list.size < k) return emptyList()
+    if (list.size == k) return listOf(list)
+    val head = list.first()
+    val tail = list.drop(1)
+    val withHead = generateCombinations(tail, k - 1).map { listOf(head) + it }
+    val withoutHead = generateCombinations(tail, k)
+    return withHead + withoutHead
+}
+
+/**
+ * Generates all permutations of a small list (used for N <= 4 switches or <= 2 LEDs).
+ */
+internal fun <T> generatePermutations(list: List<T>): List<List<T>> {
+    if (list.size <= 1) return listOf(list)
+    val result = mutableListOf<List<T>>()
+    for (i in list.indices) {
+        val element = list[i]
+        val remaining = list.take(i) + list.drop(i + 1)
+        for (subPerm in generatePermutations(remaining)) {
+            result.add(listOf(element) + subPerm)
+        }
+    }
+    return result
 }
 

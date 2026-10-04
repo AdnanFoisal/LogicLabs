@@ -53,7 +53,8 @@ object TestBenchVerifier {
         inputNames: List<String> = emptyList(),
         outputNames: List<String> = emptyList(),
         experimentTitle: String = "DIGITAL LOGIC VERIFICATION",
-        secretKey: String = "LOGIC_LABS_VERIFICATION_KEY"
+        secretKey: String = "LOGIC_LABS_VERIFICATION_KEY",
+        ledIndices: List<Int> = (0 until (outputNames.size.coerceAtLeast(1))).toList()
     ): TestBenchReport {
         val diagnostics = mutableListOf<DiagnosticIssue>()
 
@@ -99,29 +100,78 @@ object TestBenchVerifier {
         }
 
         // Check input switch connectivity
+        if (switchIndices.isEmpty()) {
+            diagnostics.add(DiagnosticIssue(isError = true, message = "No input switches specified for verification."))
+            return TestBenchReport(
+                totalCount = 0,
+                passedCount = 0,
+                rows = emptyList(),
+                isAllPassed = false,
+                hmacSha256Hash = "",
+                diagnostics = diagnostics,
+                inputNames = inputNames,
+                outputNames = outputNames,
+                experimentTitle = experimentTitle,
+                sweepDurationMs = 0L
+            )
+        }
+
         for (swIdx in switchIndices) {
-            val swSocket = AD200Topology.TERM_SW0 + swIdx
-            if (circuit.dsu.getNetSize(swSocket) <= 1) {
+            if (swIdx in 0..7) {
+                val swSocket = AD200Topology.TERM_SW0 + swIdx
+                if (circuit.dsu.getNetSize(swSocket) <= 1) {
+                    diagnostics.add(
+                        DiagnosticIssue(
+                            isError = true,
+                            message = "Input Switch SW$swIdx is not connected to any component on the breadboard."
+                        )
+                    )
+                }
+            } else {
                 diagnostics.add(
                     DiagnosticIssue(
                         isError = true,
-                        message = "Input Switch SW$swIdx is not connected to any component on the breadboard."
+                        message = "Switch index SW$swIdx is out of range 0..7."
                     )
                 )
             }
         }
 
         // Check output LED connectivity
-        for (ledIdx in (0 until outputNames.size)) {
-            val ledSocket = AD200Topology.TERM_LED0 + ledIdx
-            if (circuit.dsu.getNetSize(ledSocket) <= 2) {
+        for (ledIdx in ledIndices) {
+            if (ledIdx in 0..7) {
+                val ledSocket = AD200Topology.TERM_LED0 + ledIdx
+                if (circuit.dsu.getNetSize(ledSocket) <= 2) {
+                    diagnostics.add(
+                        DiagnosticIssue(
+                            isError = true,
+                            message = "Output LED$ledIdx is not connected to any logic output on the breadboard (floating)."
+                        )
+                    )
+                }
+            } else {
                 diagnostics.add(
                     DiagnosticIssue(
                         isError = true,
-                        message = "Output LED$ledIdx is not connected to any logic output on the breadboard (floating)."
+                        message = "LED index LED$ledIdx is out of range 0..7."
                     )
                 )
             }
+        }
+
+        if (switchIndices.any { it !in 0..7 } || ledIndices.any { it !in 0..7 }) {
+            return TestBenchReport(
+                totalCount = 0,
+                passedCount = 0,
+                rows = emptyList(),
+                isAllPassed = false,
+                hmacSha256Hash = "",
+                diagnostics = diagnostics,
+                inputNames = inputNames,
+                outputNames = outputNames,
+                experimentTitle = experimentTitle,
+                sweepDurationMs = 0L
+            )
         }
 
         // 2. Truth Table Verification
@@ -132,6 +182,14 @@ object TestBenchVerifier {
 
         // Save current switch state
         val originalSwitches = circuit.switches.copyOf()
+
+        // Isolate inputs: ensure switches not under test are grounded (LOW) so they cannot
+        // inject spurious logic levels into the breadboard during the vector sweep.
+        for (i in circuit.switches.indices) {
+            if (i !in switchIndices) {
+                circuit.switches[i] = false
+            }
+        }
 
         val digestPayload = StringBuilder()
         val sweepStartNanos = System.nanoTime()
@@ -179,8 +237,8 @@ object TestBenchVerifier {
             isAllPassed = (passedCount == vectorCount && diagnostics.none { it.isError }),
             hmacSha256Hash = hashHex,
             diagnostics = diagnostics,
-            inputNames = if (inputNames.isNotEmpty()) inputNames else (0 until n).map { "SW$it" },
-            outputNames = if (outputNames.isNotEmpty()) outputNames else listOf("OUT"),
+            inputNames = if (inputNames.isNotEmpty()) inputNames else switchIndices.map { "SW$it" },
+            outputNames = if (outputNames.isNotEmpty()) outputNames else ledIndices.map { "LED$it" },
             experimentTitle = experimentTitle,
             sweepDurationMs = sweepDurationMs
         )
