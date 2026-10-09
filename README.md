@@ -268,8 +268,8 @@ Contributions are warmly welcomed from electrical engineering students, universi
 
 ## 📜 License & Acknowledgements
 
-* **Application License:** [GNU General Public License v3.0 or later (GPL-3.0-or-later)](LICENSE).
-* **Simulation Core:** The digital simulation engine in `:core-digital` is derived from the open-source project **[hneemann/Digital](https://github.com/hneemann/Digital)** (GPLv3), which establishes the license for the application.
+* **Application License:** [GNU General Public License v3.0 (GPL-3.0-only)](LICENSE). The combined application binary is distributed under GPL-3.0-only due to the inclusion of `:core-digital` (hneemann/Digital, which is licensed under GPL-3.0 without the "or later" clause). Original Logic Labs source code outside `:core-digital` remains available under GPL-3.0-or-later.
+* **Simulation Core:** The digital simulation engine in `:core-digital` is derived from the open-source project **[hneemann/Digital](https://github.com/hneemann/Digital)** (GPLv3), which governs the distribution of the combined application binary.
 * **Fonts:** Bundled typography ([Inter](https://github.com/rsms/inter) by Rasmus Andersson and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) by JetBrains) is licensed under the [SIL Open Font License 1.1](THIRD_PARTY_NOTICES.md).
 * See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for complete attribution and license texts.
 

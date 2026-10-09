@@ -128,7 +128,7 @@ kernel from **hneemann/Digital** by Helmut Neemann and contributors:
 - License: GPL-3.0 (all 184 extracted Java files retain their upstream copyright
   headers; the upstream license text is identical to this repository's [LICENSE](LICENSE))
 
-This derivation is why the application as a whole is GPL-3.0-or-later.
+This derivation is why the combined application as a whole is distributed under GPL-3.0-only (hneemann/Digital source files do not include the "or later" clause). Original Logic Labs source files outside `:core-digital` remain available under GPL-3.0-or-later.
 
 ---
 
