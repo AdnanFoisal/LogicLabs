@@ -368,6 +368,7 @@ private fun TechnicalAccordionCard(
                 // Miniature Logic Gate ANSI Symbol
                 LogicGateGlyph(
                     name = group.title,
+                    variationSubtitle = activeLab.subtitle,
                     modifier = Modifier.size(32.dp, 24.dp)
                 )
 
@@ -379,7 +380,7 @@ private fun TechnicalAccordionCard(
                         fontSize = 14.sp
                     )
                     Text(
-                        text = getTechnicalSubtitle(group.title),
+                        text = getTechnicalSubtitle(group.title, activeLab.subtitle),
                         style = LogicLabsType.BodySm,
                         color = TextSecondary,
                         fontSize = 11.sp
@@ -435,7 +436,7 @@ private fun TechnicalAccordionCard(
 
                 // Technical Definition
                 Text(
-                    text = getTechnicalDescription(group.title),
+                    text = getTechnicalDescription(group.title, activeLab.subtitle),
                     style = LogicLabsType.BodySm,
                     color = TextSecondary,
                     fontSize = 12.sp,
@@ -451,7 +452,10 @@ private fun TechnicalAccordionCard(
                         .border(1.dp, SurfaceCardBorder, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    LargeSchematicDiagram(name = group.title)
+                    LargeSchematicDiagram(
+                        name = group.title,
+                        variationSubtitle = activeLab.subtitle
+                    )
                 }
 
                 // Styled Truth Table
@@ -656,6 +660,7 @@ private enum class CircuitDiagramKind {
     AND,
     OR,
     WIDE_NAND,
+    WIDE_AND,
     HALF_ADDER,
     FULL_ADDER,
     ADDER_4BIT,
@@ -664,9 +669,11 @@ private enum class CircuitDiagramKind {
     FLIP_FLOP_D,
     FLIP_FLOP_JK,
     FLIP_FLOP,
+    SR_LATCH,
     COUNTER,
     COMPARATOR,
     MUX,
+    DEMUX,
     OCTAL_DECODER,
     BCD_DECODER,
     DAC,
@@ -674,34 +681,55 @@ private enum class CircuitDiagramKind {
 }
 
 /**
- * Maps a course group's title to a schematic kind.
+ * Maps a course group's title (plus the active variation subtitle when applicable) to a
+ * schematic kind.
  *
  * Only references parts the sandbox catalog actually stocks: the ripple counter is the 7476
  * (there is no 7493), the decoders are the gate-built 3-to-8 (7411/7410) and the 7448 — never
  * a 74138 or 7447, which the bench cannot place.
  */
-private fun classifyCircuit(name: String): CircuitDiagramKind {
+private fun classifyCircuit(name: String, variationSubtitle: String = ""): CircuitDiagramKind {
     val lower = name.lowercase()
+    val sub = variationSubtitle.lowercase()
     return when {
+        // 4-bit adder (7483) must precede "full adder" because Lab 12's title is
+        // "4-Bit Binary Full Adder Arithmetic".
+        lower.contains("7483") || sub.contains("7483") ||
+            (lower.contains("adder") && (lower.contains("4-bit") || lower.contains("binary full adder"))) ->
+            CircuitDiagramKind.ADDER_4BIT
+        // Variation-specific overrides for multi-variation adder groups (exp04)
+        sub.contains("full adder") -> CircuitDiagramKind.FULL_ADDER
+        sub.contains("half adder") -> CircuitDiagramKind.HALF_ADDER
         lower.contains("half adder") || lower.contains("half_adder") -> CircuitDiagramKind.HALF_ADDER
         lower.contains("full adder") || lower.contains("full_adder") -> CircuitDiagramKind.FULL_ADDER
-        lower.contains("7483") || (lower.contains("adder") && (lower.contains("4-bit") || lower.contains("binary"))) -> CircuitDiagramKind.ADDER_4BIT
         lower.contains("subtractor") -> CircuitDiagramKind.SUBTRACTOR
         // XNOR must be classified before NOR: "Exclusive-NOR" contains the word "nor".
         lower.contains("xnor") -> CircuitDiagramKind.XNOR
+        // 4-input AND variation of exp17 vs 4-input NAND
+        sub.contains("4-input and") -> CircuitDiagramKind.WIDE_AND
         // The wide gate must be classified before the generic 2-input NAND.
         lower.contains("4-input") || lower.contains("wide") -> CircuitDiagramKind.WIDE_NAND
         lower.contains("buffer") -> CircuitDiagramKind.BUFFER
         lower.contains("bcd") || lower.contains("7-segment") || lower.contains("seven segment") -> CircuitDiagramKind.BCD_DECODER
         lower.contains("comparator") -> CircuitDiagramKind.COMPARATOR
+        sub.contains("demultiplex") || sub.contains("demux") -> CircuitDiagramKind.DEMUX
         lower.contains("multiplex") -> CircuitDiagramKind.MUX
         lower.contains("decoder") || lower.contains("octal") -> CircuitDiagramKind.OCTAL_DECODER
         lower.contains("gray") -> CircuitDiagramKind.CONVERTER
+        // Counter must precede "7476" because exp13's title is
+        // "2-Bit Asynchronous Ripple Counter (7476)".
+        lower.contains("counter") -> CircuitDiagramKind.COUNTER
         lower.contains("d flip") || lower.contains("7474") -> CircuitDiagramKind.FLIP_FLOP_D
         lower.contains("jk") || lower.contains("7476") -> CircuitDiagramKind.FLIP_FLOP_JK
-        lower.contains("flip") || lower.contains("latch") -> CircuitDiagramKind.FLIP_FLOP
-        lower.contains("counter") -> CircuitDiagramKind.COUNTER
+        lower.contains("latch") -> CircuitDiagramKind.SR_LATCH
+        lower.contains("flip") -> CircuitDiagramKind.FLIP_FLOP
         lower.contains("dac") || lower.contains("d/a") || lower.contains("weighted") || lower.contains("ladder") -> CircuitDiagramKind.DAC
+        // Discrete & Universal gate variation overrides
+        sub.contains("diode or") -> CircuitDiagramKind.OR
+        sub.contains("diode and") -> CircuitDiagramKind.AND
+        sub.contains("transistor not") -> CircuitDiagramKind.NOT
+        sub.contains("7402 nors only") -> CircuitDiagramKind.NOR
+        sub.contains("7400 nands only") -> CircuitDiagramKind.NAND
         Regex("\\bnot\\b").containsMatchIn(lower) || lower.contains("inverter") -> CircuitDiagramKind.NOT
         Regex("\\bnand\\b").containsMatchIn(lower) -> CircuitDiagramKind.NAND
         Regex("\\bnor\\b").containsMatchIn(lower) -> CircuitDiagramKind.NOR
@@ -713,20 +741,24 @@ private fun classifyCircuit(name: String): CircuitDiagramKind {
 }
 
 private fun getDynamicButtonLabel(lab: LabExperiment): String {
+    val s = lab.subtitle.lowercase()
     val t = (lab.title + " " + lab.subtitle).lowercase()
     return when {
+        t.contains("7483") || t.contains("4-bit binary full adder") || t.contains("4-bit adder") || t.contains("binary adder") -> "TEST 4-BIT ADDER"
+        s.contains("full adder") -> "BUILD FULL ADDER"
+        s.contains("half adder") -> "BUILD HALF ADDER"
         t.contains("half adder") -> "BUILD HALF ADDER"
         t.contains("full adder") -> "BUILD FULL ADDER"
-        t.contains("7483") || t.contains("4-bit adder") || t.contains("binary adder") -> "TEST 4-BIT ADDER"
         t.contains("subtractor") -> "BUILD SUBTRACTOR"
+        t.contains("counter") -> "TEST RIPPLE COUNTER"
         t.contains("flip") && t.contains("jk") -> "TEST JK FLIP-FLOP"
         t.contains("d flip") || t.contains("d-type") -> "TEST D FLIP-FLOP"
         t.contains("flip") -> "TEST FLIP-FLOP"
         t.contains("latch") -> "TEST SR LATCH"
-        t.contains("counter") -> "TEST RIPPLE COUNTER"
         t.contains("bcd") || t.contains("7-segment") -> "TEST BCD DECODER"
         t.contains("decoder") -> "TEST 3-TO-8 DECODER"
         t.contains("comparator") -> "TEST COMPARATOR"
+        s.contains("demultiplexer") || s.contains("demux") -> "TEST DEMULTIPLEXER"
         t.contains("multiplexer") || t.contains("mux") -> "TEST MULTIPLEXER"
         t.contains("gray") -> "TEST CODE CONVERTER"
         t.contains("simplification") -> "PROVE THE REDUCTION"
@@ -734,6 +766,13 @@ private fun getDynamicButtonLabel(lab: LabExperiment): String {
         t.contains("buffer") -> "VERIFY BUFFER"
         // XNOR before NOR: "exclusive-nor" contains the standalone word "nor".
         t.contains("xnor") -> "VERIFY XNOR GATE"
+        // Variation-specific gate checks so group titles don't shadow the active variation
+        s.contains("diode or") -> "VERIFY OR GATE"
+        s.contains("diode and") -> "VERIFY AND GATE"
+        s.contains("transistor not") -> "VERIFY NOT GATE"
+        s.contains("7402 nors only") -> "VERIFY NOR GATE"
+        s.contains("7400 nands only") -> "VERIFY NAND GATE"
+        s.contains("4-input and") -> "VERIFY AND GATE"
         Regex("\\bnand\\b").containsMatchIn(t) -> "VERIFY NAND GATE"
         Regex("\\bnor\\b").containsMatchIn(t) -> "VERIFY NOR GATE"
         Regex("\\bxor\\b").containsMatchIn(t) -> "VERIFY XOR GATE"
@@ -748,8 +787,12 @@ private fun getDynamicButtonLabel(lab: LabExperiment): String {
  * Procedural ANSI logic gate schematic rendering on Canvas.
  */
 @Composable
-private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
-    val kind = remember(name) { classifyCircuit(name) }
+private fun LargeSchematicDiagram(
+    name: String,
+    variationSubtitle: String = "",
+    modifier: Modifier = Modifier
+) {
+    val kind = remember(name, variationSubtitle) { classifyCircuit(name, variationSubtitle) }
     val labelPaint = remember {
         android.graphics.Paint().apply {
             color = android.graphics.Color.parseColor("#94A3B8")
@@ -919,8 +962,8 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                 drawLine(strokeCol, Offset(gateX + gateW + 1f, gateY + gateH / 2f), Offset(w * 0.85f, gateY + gateH / 2f), strokeWidth = 2.dp.toPx())
                 drawContext.canvas.nativeCanvas.drawText("Q = A⊙B", w * 0.92f, gateY + gateH / 2f + textYOffset, labelPaint)
             }
-            CircuitDiagramKind.WIDE_NAND -> {
-                // AND body with four input stubs and an inversion bubble: Y = (A·B·C·D)′.
+            CircuitDiagramKind.WIDE_NAND, CircuitDiagramKind.WIDE_AND -> {
+                // AND body with four input stubs (plus inversion bubble for WIDE_NAND).
                 val gateX = w * 0.35f
                 val gateY = h * 0.16f
                 val gateW = w * 0.28f
@@ -939,9 +982,14 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                     drawLine(strokeCol, Offset(w * 0.15f, y), Offset(gateX, y), strokeWidth = 2.dp.toPx())
                     drawContext.canvas.nativeCanvas.drawText(labels[i], w * 0.08f, y + textYOffset, labelPaint)
                 }
-                drawCircle(strokeCol, radius = 5f, center = Offset(gateX + gateW + 5f, gateY + gateH / 2f), style = stroke)
-                drawLine(strokeCol, Offset(gateX + gateW + 10f, gateY + gateH / 2f), Offset(w * 0.85f, gateY + gateH / 2f), strokeWidth = 2.dp.toPx())
-                drawContext.canvas.nativeCanvas.drawText("Q = (A·B·C·D)′", w * 0.92f, gateY + gateH / 2f + textYOffset, labelPaint)
+                if (kind == CircuitDiagramKind.WIDE_NAND) {
+                    drawCircle(strokeCol, radius = 5f, center = Offset(gateX + gateW + 5f, gateY + gateH / 2f), style = stroke)
+                    drawLine(strokeCol, Offset(gateX + gateW + 10f, gateY + gateH / 2f), Offset(w * 0.85f, gateY + gateH / 2f), strokeWidth = 2.dp.toPx())
+                    drawContext.canvas.nativeCanvas.drawText("Q = (A·B·C·D)′", w * 0.92f, gateY + gateH / 2f + textYOffset, labelPaint)
+                } else {
+                    drawLine(strokeCol, Offset(gateX + gateW, gateY + gateH / 2f), Offset(w * 0.85f, gateY + gateH / 2f), strokeWidth = 2.dp.toPx())
+                    drawContext.canvas.nativeCanvas.drawText("Q = A·B·C·D", w * 0.92f, gateY + gateH / 2f + textYOffset, labelPaint)
+                }
             }
             CircuitDiagramKind.HALF_ADDER -> {
                 val gateW = w * 0.20f
@@ -1056,7 +1104,8 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                 drawContext.canvas.nativeCanvas.drawText(out1, w * 0.94f, outY1 + textYOffset, labelPaint)
                 drawContext.canvas.nativeCanvas.drawText(out2, w * 0.94f, outY2 + textYOffset, labelPaint)
             }
-            CircuitDiagramKind.FLIP_FLOP_D, CircuitDiagramKind.FLIP_FLOP_JK, CircuitDiagramKind.FLIP_FLOP -> {
+            CircuitDiagramKind.FLIP_FLOP_D, CircuitDiagramKind.FLIP_FLOP_JK,
+            CircuitDiagramKind.FLIP_FLOP, CircuitDiagramKind.SR_LATCH -> {
                 val blockX = w * 0.32f
                 val blockY = h * 0.12f
                 val blockW = w * 0.36f
@@ -1076,18 +1125,21 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                     style = stroke
                 )
 
+                val isClocked = kind != CircuitDiagramKind.SR_LATCH
                 val clkY = blockY + blockH * 0.50f
-                drawLine(busCol, Offset(w * 0.14f, clkY), Offset(blockX, clkY), strokeWidth = 2.dp.toPx())
-                path1.reset()
-                path1.moveTo(blockX, clkY - 8f)
-                path1.lineTo(blockX + 12f, clkY)
-                path1.lineTo(blockX, clkY + 8f)
-                drawPath(path1, strokeCol, style = stroke)
+                if (isClocked) {
+                    drawLine(busCol, Offset(w * 0.14f, clkY), Offset(blockX, clkY), strokeWidth = 2.dp.toPx())
+                    path1.reset()
+                    path1.moveTo(blockX, clkY - 8f)
+                    path1.lineTo(blockX + 12f, clkY)
+                    path1.lineTo(blockX, clkY + 8f)
+                    drawPath(path1, strokeCol, style = stroke)
+                }
 
                 val inY1 = blockY + blockH * 0.25f
                 val inY2 = blockY + blockH * 0.75f
                 drawLine(busCol, Offset(w * 0.14f, inY1), Offset(blockX, inY1), strokeWidth = 2.dp.toPx())
-                if (kind == CircuitDiagramKind.FLIP_FLOP_JK) {
+                if (kind != CircuitDiagramKind.FLIP_FLOP_D) {
                     drawLine(busCol, Offset(w * 0.14f, inY2), Offset(blockX, inY2), strokeWidth = 2.dp.toPx())
                 }
 
@@ -1097,13 +1149,30 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                 drawCircle(strokeCol, radius = 4f, center = Offset(blockX + blockW + 5f, outY2), style = stroke)
                 drawLine(strokeCol, Offset(blockX + blockW + 9f, outY2), Offset(w * 0.86f, outY2), strokeWidth = 2.dp.toPx())
 
-                val chipLabel = if (kind == CircuitDiagramKind.FLIP_FLOP_JK) "7476 JK-FF" else "7474 D-FF"
-                val in1Label = if (kind == CircuitDiagramKind.FLIP_FLOP_JK) "J" else "D"
-                val in2Label = if (kind == CircuitDiagramKind.FLIP_FLOP_JK) "K" else ""
+                val chipLabel = when (kind) {
+                    CircuitDiagramKind.FLIP_FLOP_JK -> "7476 JK-FF"
+                    CircuitDiagramKind.FLIP_FLOP_D -> "7474 D-FF"
+                    CircuitDiagramKind.SR_LATCH -> "7400 SR LATCH"
+                    else -> "7400 SR-FF"
+                }
+                val in1Label = when (kind) {
+                    CircuitDiagramKind.FLIP_FLOP_JK -> "J"
+                    CircuitDiagramKind.FLIP_FLOP_D -> "D"
+                    CircuitDiagramKind.SR_LATCH -> "~S"
+                    else -> "S"
+                }
+                val in2Label = when (kind) {
+                    CircuitDiagramKind.FLIP_FLOP_JK -> "K"
+                    CircuitDiagramKind.FLIP_FLOP_D -> ""
+                    CircuitDiagramKind.SR_LATCH -> "~R"
+                    else -> "R"
+                }
 
                 drawContext.canvas.nativeCanvas.drawText(chipLabel, blockX + blockW / 2f, blockY + blockH * 0.55f, titlePaint)
                 drawContext.canvas.nativeCanvas.drawText(in1Label, w * 0.07f, inY1 + textYOffset, labelPaint)
-                drawContext.canvas.nativeCanvas.drawText("CLK", w * 0.07f, clkY + textYOffset, labelPaint)
+                if (isClocked) {
+                    drawContext.canvas.nativeCanvas.drawText("CLK", w * 0.07f, clkY + textYOffset, labelPaint)
+                }
                 if (in2Label.isNotEmpty()) {
                     drawContext.canvas.nativeCanvas.drawText(in2Label, w * 0.07f, inY2 + textYOffset, labelPaint)
                 }
@@ -1150,7 +1219,7 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                 drawContext.canvas.nativeCanvas.drawText("CLK", w * 0.04f, clkY + textYOffset, labelPaint)
             }
             CircuitDiagramKind.OCTAL_DECODER, CircuitDiagramKind.BCD_DECODER,
-            CircuitDiagramKind.COMPARATOR, CircuitDiagramKind.MUX,
+            CircuitDiagramKind.COMPARATOR, CircuitDiagramKind.MUX, CircuitDiagramKind.DEMUX,
             CircuitDiagramKind.CONVERTER, CircuitDiagramKind.DAC, CircuitDiagramKind.GENERIC_IC -> {
                 // One parameterised block for the MSI-style experiments. Titles only name
                 // parts the sandbox actually stocks (7448) or the gate families that build
@@ -1160,6 +1229,7 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
                     CircuitDiagramKind.BCD_DECODER -> Triple("7448 BCD→7SEG", listOf("A", "B", "C", "D"), "a..g")
                     CircuitDiagramKind.COMPARATOR -> Triple("2-BIT COMPARATOR", listOf("A[1:0]", "B[1:0]"), "> = <")
                     CircuitDiagramKind.MUX -> Triple("4:1 MUX", listOf("D[0..3]", "S1", "S0"), "Y")
+                    CircuitDiagramKind.DEMUX -> Triple("1:4 DEMUX", listOf("D", "S1", "S0"), "Y[0..3]")
                     CircuitDiagramKind.CONVERTER -> Triple("BIN ↔ GRAY", listOf("B[3:0]"), "G[3:0]")
                     CircuitDiagramKind.DAC -> Triple("WEIGHTED DAC", listOf("D[3:0]"), "Vout")
                     else -> Triple("LOGIC MODULE", listOf("A", "B"), "Y")
@@ -1205,8 +1275,12 @@ private fun LargeSchematicDiagram(name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LogicGateGlyph(name: String, modifier: Modifier = Modifier) {
-    val kind = remember(name) { classifyCircuit(name) }
+private fun LogicGateGlyph(
+    name: String,
+    variationSubtitle: String = "",
+    modifier: Modifier = Modifier
+) {
+    val kind = remember(name, variationSubtitle) { classifyCircuit(name, variationSubtitle) }
     val path = remember { Path() }
 
     Canvas(modifier = modifier) {
@@ -1254,12 +1328,15 @@ private fun LogicGateGlyph(name: String, modifier: Modifier = Modifier) {
                 path.lineTo(w - 4f, h - 2f)
                 drawPath(path, col, style = stroke)
             }
-            CircuitDiagramKind.FLIP_FLOP, CircuitDiagramKind.FLIP_FLOP_D, CircuitDiagramKind.FLIP_FLOP_JK -> {
+            CircuitDiagramKind.FLIP_FLOP, CircuitDiagramKind.FLIP_FLOP_D,
+            CircuitDiagramKind.FLIP_FLOP_JK, CircuitDiagramKind.SR_LATCH -> {
                 drawRoundRect(col, Offset(2f, 2f), Size(w - 4f, h - 4f), style = stroke)
-                path.moveTo(2f, h / 2f - 4f)
-                path.lineTo(8f, h / 2f)
-                path.lineTo(2f, h / 2f + 4f)
-                drawPath(path, col, style = stroke)
+                if (kind != CircuitDiagramKind.SR_LATCH) {
+                    path.moveTo(2f, h / 2f - 4f)
+                    path.lineTo(8f, h / 2f)
+                    path.lineTo(2f, h / 2f + 4f)
+                    drawPath(path, col, style = stroke)
+                }
             }
             CircuitDiagramKind.COUNTER -> {
                 path.moveTo(2f, h - 3f)
@@ -1271,12 +1348,13 @@ private fun LogicGateGlyph(name: String, modifier: Modifier = Modifier) {
                 drawPath(path, col, style = stroke)
             }
             CircuitDiagramKind.OCTAL_DECODER, CircuitDiagramKind.BCD_DECODER,
-            CircuitDiagramKind.COMPARATOR, CircuitDiagramKind.MUX, CircuitDiagramKind.CONVERTER,
-            CircuitDiagramKind.DAC, CircuitDiagramKind.GENERIC_IC -> {
+            CircuitDiagramKind.COMPARATOR, CircuitDiagramKind.MUX, CircuitDiagramKind.DEMUX,
+            CircuitDiagramKind.CONVERTER, CircuitDiagramKind.DAC, CircuitDiagramKind.GENERIC_IC -> {
                 drawRoundRect(col, Offset(2f, 2f), Size(w - 4f, h - 4f), style = stroke)
                 drawLine(col, Offset(w * 0.35f, 2f), Offset(w * 0.35f, h - 2f), strokeWidth = 1.dp.toPx())
             }
-            CircuitDiagramKind.AND, CircuitDiagramKind.NAND, CircuitDiagramKind.WIDE_NAND -> {
+            CircuitDiagramKind.AND, CircuitDiagramKind.WIDE_AND,
+            CircuitDiagramKind.NAND, CircuitDiagramKind.WIDE_NAND -> {
                 path.moveTo(2f, 2f)
                 path.lineTo(w * 0.5f, 2f)
                 path.arcTo(Rect(2f, 2f, w - 4f, h - 2f), -90f, 180f, false)
@@ -1291,21 +1369,29 @@ private fun LogicGateGlyph(name: String, modifier: Modifier = Modifier) {
     }
 }
 
-private fun getTechnicalSubtitle(title: String): String {
+private fun getTechnicalSubtitle(title: String, variationSubtitle: String = ""): String {
     val t = title.lowercase()
+    val s = variationSubtitle.lowercase()
     return when {
+        // 4-bit adder (7483) must precede "full adder" because Lab 12's title is
+        // "4-Bit Binary Full Adder Arithmetic".
+        t.contains("7483") || s.contains("7483") ||
+            (t.contains("adder") && (t.contains("4-bit") || t.contains("binary full adder"))) ->
+            "4-Bit binary full adder with internal fast carry"
+        s.contains("full adder") -> "Cascadable 3-input binary adder stage"
+        s.contains("half adder") -> "2-Bit modulo-2 sum & carry generator"
         t.contains("half_adder") || t.contains("half adder") -> "2-Bit modulo-2 sum & carry generator"
         t.contains("full_adder") || t.contains("full adder") -> "Cascadable 3-input binary adder stage"
         t.contains("subtractor") -> "Modulo-2 difference & borrow generator"
-        t.contains("7483") -> "4-Bit binary full adder with internal fast carry"
         t.contains("bcd") || t.contains("7-segment") -> "BCD word to seven active-HIGH segment strokes (7448)"
         t.contains("gray") -> "Unit-distance code conversion by XOR difference (7486)"
         t.contains("comparator") -> "Bit-pair equality via XNOR plus magnitude logic (74266/7486)"
         t.contains("multiplex") -> "2-bit channel-select data routing from AND-OR logic (7408/7432)"
         t.contains("octal") || t.contains("3-to-8") -> "One-of-eight minterm decode from 7411 ANDs / 7410 NANDs"
+        // Counter must precede "7476" because exp13's title contains "(7476)".
+        t.contains("counter") -> "2-bit asynchronous ripple counter from the 7476 dual J-K"
         t.contains("7474") || t.contains("d flip") -> "Dual D-type positive-edge-triggered flip-flop"
         t.contains("7476") || t.contains("jk") -> "Dual J-K flip-flop with preset and clear"
-        t.contains("counter") -> "2-bit asynchronous ripple counter from the 7476 dual J-K"
         t.contains("dac") || t.contains("d/a") || t.contains("weighted") -> "Binary-weighted resistor ladder D/A converter"
         t.contains("latch") -> "Cross-coupled NAND bistable storage element"
         t.contains("clocked") -> "NAND-steered S-R latch, transparent while clocked HIGH"
@@ -1325,17 +1411,25 @@ private fun getTechnicalSubtitle(title: String): String {
     }
 }
 
-private fun getTechnicalDescription(title: String): String {
+private fun getTechnicalDescription(title: String, variationSubtitle: String = ""): String {
     val t = title.lowercase()
+    val s = variationSubtitle.lowercase()
     return when {
+        // 4-bit adder (7483) must precede "full adder" because Lab 12's title is
+        // "4-Bit Binary Full Adder Arithmetic".
+        t.contains("7483") || s.contains("7483") ||
+            (t.contains("adder") && (t.contains("4-bit") || t.contains("binary full adder"))) ->
+            "The 7483 4-Bit Binary Full Adder performs high-speed parallel addition of two 4-bit binary words with internal lookahead fast-carry logic, outputting four sum bits (Σ1..Σ4) and carry-out C4."
+        s.contains("full adder") ->
+            "The Full Adder calculates the sum of three 1-bit inputs: operands A and B plus an incoming carry (Cin). Cascading multiple full adders creates n-bit parallel binary adders."
+        s.contains("half adder") ->
+            "The Half Adder computes the arithmetic sum of two 1-bit binary inputs (A, B). The sum (Σ) is generated via modulo-2 addition (XOR), and the carry out (Cout) is generated via logical conjunction (AND)."
         t.contains("half_adder") || t.contains("half adder") ->
             "The Half Adder computes the arithmetic sum of two 1-bit binary inputs (A, B). The sum (Σ) is generated via modulo-2 addition (XOR), and the carry out (Cout) is generated via logical conjunction (AND)."
         t.contains("full_adder") || t.contains("full adder") ->
             "The Full Adder calculates the sum of three 1-bit inputs: operands A and B plus an incoming carry (Cin). Cascading multiple full adders creates n-bit parallel binary adders."
         t.contains("subtractor") ->
             "The Subtractor mirrors the adder with one asymmetry: the difference bit is the same XOR as the sum, but the borrow is A'·B — true only when a larger bit is taken from a smaller one. The full subtractor adds a borrow-in and a second product term built from the XNOR of A and B."
-        t.contains("7483") ->
-            "The 7483 4-Bit Binary Full Adder performs high-speed parallel addition of two 4-bit binary words with internal lookahead fast-carry logic, outputting four sum bits (Σ1..Σ4) and carry-out C4."
         t.contains("bcd") || t.contains("7-segment") ->
             "The 7448 BCD-to-Seven-Segment Decoder reads a 4-bit binary-coded-decimal word and drives the seven active-HIGH segment outputs that light a common-cathode digit's strokes, with lamp-test and blanking controls that override the decode."
         t.contains("gray") ->

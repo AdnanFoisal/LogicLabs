@@ -6,7 +6,7 @@
 **A faithful, fully offline digital twin of the legendary K&H IDL-800A Digital Lab Trainer.**  
 Place datasheet-exact 74xx TTL integrated circuits onto a true-to-topology AD-200 breadboard, wire them with sagging 2.5D jumpers, drive them with authentic trainer instruments, and verify circuits with an automated truth-table engine.
 
-[![Release](https://img.shields.io/badge/Release-v1.1.1-7F52FF.svg?style=for-the-badge&logo=github)](https://github.com/AdnanFoisal/LogicLabs/releases)
+[![Release](https://img.shields.io/badge/Release-v1.1.2-7F52FF.svg?style=for-the-badge&logo=github)](https://github.com/AdnanFoisal/LogicLabs/releases)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?style=for-the-badge&logo=kotlin)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/Jetpack-Compose-4285F4.svg?style=for-the-badge&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![License](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg?style=for-the-badge)](LICENSE)

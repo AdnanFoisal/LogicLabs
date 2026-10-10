@@ -486,7 +486,7 @@ fun LogicLabsMainScreen(
     suspend fun loadProject(projectId: String) {
         val project = container.projects.load(projectId)
         if (project == null) {
-            loadLab(LabCurriculum.classicLabs[1])
+            loadLab(LabCurriculum.classicLabs[0])
             return
         }
         ProjectPersistence.deserialize(project, circuit)
@@ -548,11 +548,11 @@ fun LogicLabsMainScreen(
                 when (session?.kind) {
                     SessionKind.LAB -> {
                         val lab = ExperimentCatalog.allLabs.find { it.id == session.id }
-                        if (lab != null) loadLab(lab) else loadLab(LabCurriculum.classicLabs[1])
+                        if (lab != null) loadLab(lab) else loadLab(LabCurriculum.classicLabs[0])
                     }
                     SessionKind.PROJECT -> {
                         val id = session.id
-                        if (id != null) loadProject(id) else loadLab(LabCurriculum.classicLabs[1])
+                        if (id != null) loadProject(id) else loadLab(LabCurriculum.classicLabs[0])
                     }
                     // A sandbox continuation restores the autosave draft if one exists,
                     // which is what makes "Continue" lossless for free builds.
@@ -574,15 +574,15 @@ fun LogicLabsMainScreen(
                         }
                     }
                     null -> {
-                        // First ever launch: the intro NAND build, the same seed the
-                        // app has always opened with.
-                        loadLab(LabCurriculum.classicLabs[1])
+                        // First ever launch: the intro NOT gate build (EXP 01), matching
+                        // the Home screen's initial prompt.
+                        loadLab(LabCurriculum.classicLabs[0])
                     }
                 }
             }
             is BenchRequest.Lab -> {
                 val lab = ExperimentCatalog.allLabs.find { it.id == request.labId }
-                if (lab != null) loadLab(lab) else loadLab(LabCurriculum.classicLabs[1])
+                if (lab != null) loadLab(lab) else loadLab(LabCurriculum.classicLabs[0])
             }
             is BenchRequest.Project -> loadProject(request.projectId)
             BenchRequest.Sandbox -> {
@@ -929,7 +929,7 @@ fun LogicLabsMainScreen(
                 bench.overlay = Overlay.NONE
             },
             onReloadLab = {
-                loadLab(activeLab ?: LabCurriculum.classicLabs[1])
+                loadLab(activeLab ?: LabCurriculum.classicLabs[0])
             },
             onExportProject = currentProjectId?.let { id ->
                 {
@@ -1298,7 +1298,7 @@ internal fun findBestMatchingLab(
     connectedLeds: List<Int> = emptyList()
 ): LabExperiment {
     val placedSet = placedChips.toSet()
-    if (placedSet.isEmpty()) return LabCurriculum.classicLabs[1]
+    if (placedSet.isEmpty()) return LabCurriculum.classicLabs[0]
 
     val candidates = ExperimentCatalog.allLabs.filter { lab ->
         lab.targetChips.isNotEmpty() && lab.targetChips.all { it in placedSet }
@@ -1307,7 +1307,7 @@ internal fun findBestMatchingLab(
     if (candidates.isEmpty()) {
         return ExperimentCatalog.allLabs.find { lab ->
             lab.targetChips.any { it in placedSet }
-        } ?: LabCurriculum.classicLabs[1]
+        } ?: LabCurriculum.classicLabs[0]
     }
 
     return candidates.maxByOrNull { lab ->

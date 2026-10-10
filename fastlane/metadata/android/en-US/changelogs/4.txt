@@ -1,0 +1,5 @@
+Logic Labs v1.1.2 update.
+
+• Fixed first-launch & fallback lab selection so "Start EXP 01" opens EXP 01 (7404 Inverter / NOT Gate Logic) instead of EXP 02 (7400 NAND)
+• Fixed Coursework tab schematic, subtitle, and button classification for 7483 4-bit adder, 7476 ripple counter, SR latch, and clocked SR flip-flop
+• Coursework accordion cards now dynamically update schematics, glyphs, and launch labels when switching implementation variations
