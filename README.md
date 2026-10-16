@@ -1,285 +1,271 @@
 <div align="center">
 
-# ⚡ Logic Labs
-### The Professional Digital Electronics Laboratory in Your Pocket.
+<img src="fastlane/metadata/android/en-US/images/icon.png" alt="Logic Labs app icon" width="120">
 
-**A faithful, fully offline digital twin of the legendary K&H IDL-800A Digital Lab Trainer.**  
-Place datasheet-exact 74xx TTL integrated circuits onto a true-to-topology AD-200 breadboard, wire them with sagging 2.5D jumpers, drive them with authentic trainer instruments, and verify circuits with an automated truth-table engine.
+# Logic Labs
 
-[![Release](https://img.shields.io/badge/Release-v1.1.2-7F52FF.svg?style=for-the-badge&logo=github)](https://github.com/AdnanFoisal/LogicLabs/releases)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?style=for-the-badge&logo=kotlin)](https://kotlinlang.org)
-[![Compose](https://img.shields.io/badge/Jetpack-Compose-4285F4.svg?style=for-the-badge&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
-[![License](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg?style=for-the-badge)](LICENSE)
-[![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84.svg?style=for-the-badge&logo=android)](https://developer.android.com)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline-success.svg?style=for-the-badge)](README.md#-zero-compromise-privacy--architecture)
+### A digital electronics lab that fits in your pocket.
 
-</div>
+Build real 74xx chip circuits on a lifelike breadboard, test them with trainer-style tools, and check your work automatically.<br>
+No internet. No account. No tracking.
 
----
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">][fdroid]
 
-## 📸 The App in Action
-
-<div align="center">
-
-| ⚡ Virtual Workstation | 🎓 Guided Coursework | 📖 74xx IC Catalog | 💾 Projects & Persistence | 🎨 Instrument Themes |
-| :---: | :---: | :---: | :---: | :---: |
-| <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01_breadboard_workstation.png" width="190" alt="AD-200 Breadboard Workstation"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02_guided_coursework.png" width="190" alt="Interactive Coursework"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03_ic_datasheets.png" width="190" alt="74xx IC Datasheets"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04_projects_dashboard.png" width="190" alt="Projects & Bench Stats"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05_themes_settings.png" width="190" alt="Hardware Themes & Settings"> |
-| *AD-200 breadboard, 8-colour wiring & real-time simulation* | *12 university lab units with dynamic truth tables* | *Datasheet-exact DIP-14 pinouts & gate schematics* | *Circuit manager, offline storage & lab time metrics* | *Obsidian Stealth, Amber CRT & tactile feedback* |
+[![F-Droid version](https://img.shields.io/f-droid/v/com.logiclabs.app?logo=fdroid&label=F-Droid)][fdroid]
+[![Release](https://img.shields.io/github/v/release/AdnanFoisal/LogicLabs?label=Release)](https://github.com/AdnanFoisal/LogicLabs/releases)
+[![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue)](LICENSE)
+[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline-success)](#privacy)
 
 </div>
 
-> *"No accounts. No network requests. No telemetry. Just pure, unadulterated digital logic."*
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01_breadboard_workstation.png" alt="The AD-200 breadboard workstation with chips, wires and trainer console" width="170"></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02_guided_coursework.png" alt="Guided lab coursework with truth tables" width="170"></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03_ic_datasheets.png" alt="74xx chip catalog with pinouts and gate diagrams" width="170"></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04_projects_dashboard.png" alt="Saved projects and lab statistics" width="170"></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05_themes_settings.png" alt="Hardware themes and settings" width="170"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Breadboard</b><br>Build and test circuits</sub></td>
+    <td align="center"><sub><b>Coursework</b><br>Guided lab experiments</sub></td>
+    <td align="center"><sub><b>Chip catalog</b><br>Pinouts and diagrams</sub></td>
+    <td align="center"><sub><b>Projects</b><br>Saved circuits and stats</sub></td>
+    <td align="center"><sub><b>Themes</b><br>Make the bench yours</sub></td>
+  </tr>
+</table>
 
 ---
 
-## 🌟 Why Logic Labs?
+## What is Logic Labs?
 
-Most electronics apps rely on abstract 2D schematic diagrams. **Logic Labs bridges the gap between theoretical schematics and real physical hardware**, simulating the real layout, pinouts, and electrical properties of university digital-logic training consoles.
+Logic Labs is a free, open-source Android app for learning and practising digital electronics. It recreates a real university lab bench on your device: the **K&H IDL-800A** digital trainer, with its **AD-200** solderless breadboard.
 
-```
-       [ K&H IDL-800A TRAINER CONSOLE ]
- ┌──────────────────────────────────────────────┐
- │  [SW0-SW7]   [PULSERS]   [CLOCK]   [7-SEG]   │
- └──────┬──────────┬───────────┬─────────┬──────┘
-        │          │           │         │
- ┌──────▼──────────▼───────────▼─────────▼──────┐
- │       AD-200 TRUE-TOPOLOGY BREADBOARD        │
- │   1,896 Tie-Points • 7 Rails • Center Trench │
- │    7400   7404   7408   7432   7483   7474   │
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │     DIAGNOSTICS & VERIFICATION ENGINE        │
- │  Dual-Trace Scope • Gate Schematic • PDF Cert│
- └──────────────────────────────────────────────┘
-```
+You place chips such as the 7400 (NAND) or 7408 (AND), connect them with wires, flip switches, and watch LEDs, displays and an oscilloscope react. When you are done, the app can test your circuit against every possible input and give you a printable PDF report.
+
+Most circuit apps show flat diagrams. Logic Labs shows the real layout instead: real chip pinouts, real breadboard rows, real wiring. What you practise here carries over to the physical bench.
+
+**Who is it for?**
+
+- **Students** taking a digital logic or electronics course who want to practise away from the lab
+- **Teachers and lab instructors** who want a hands-on tool students can use anywhere
+- **Hobbyists and self-learners** curious how gates, adders, and counters really work
+
+### How it works
+
+1. **Build.** Place chips on the breadboard and connect them with jumper wires.
+2. **Run.** Feed signals in with switches, pulse buttons, or a clock. Watch the LEDs, displays, and oscilloscope.
+3. **Check.** Let the app test every input combination and tell you whether your circuit is correct.
 
 ---
 
-## 🔬 Core Features
+## Download
 
-### 🧩 1. True-to-Topology 2.5D Breadboard (AD-200)
-* **1,896 Physical Tie-Points:** Four 64-column terminal blocks (rows A–E and F–J), seven distribution power rails (+ and − buses), and a standard 0.3″ DIP central trench.
-* **Physics-Based Jumper Wires:** Wires have realistic 2.5D curvature, weight sag, and elevation layering. Connect via fluid drag-and-drop or precision tap-to-connect.
-* **Magnetic Snapping & 2.2× Loupe:** Floating magnification loupe ensures pinpoint socket targeting without finger occlusion.
-* **10 Insulation Colors:** Color-code circuits using standard industry wire colors (Red, Black, Blue, Green, Yellow, White, Orange, Purple, Gray, Brown).
-* **Electrical Safety & PRACTICAL Mode:** Toggle between forgiving educational mode and **PRACTICAL mode**—where reverse polarity or short-circuit bus contention burns out chips with audible and visual feedback.
+| Source | How |
+|---|---|
+| **F-Droid** (recommended) | Open the F-Droid app and search for **Logic Labs**, or visit the [F-Droid package page][fdroid]. |
+| **GitHub** | Get tag list, release notes, and source code from [Releases](https://github.com/AdnanFoisal/LogicLabs/releases) or [Tags](https://github.com/AdnanFoisal/LogicLabs/tags). |
 
-### 🔌 2. Datasheet-Exact 74xx TTL Integrated Circuits
-Every IC is simulated down to the gate level with accurate pin assignments, propagation characteristics, and pin-1 orientation notches:
+Requires **Android 8.0 or newer**.
 
-| Part # | Family / Package | Description |
-| :---: | :--- | :--- |
-| **7400** | Quad 2-Input | NAND Gates (Universal Gate) |
-| **7402** | Quad 2-Input | NOR Gates (Universal Gate) |
-| **7404** | Hex Inverters | NOT Gates |
-| **7408** | Quad 2-Input | AND Gates |
-| **7410** | Triple 3-Input | NAND Gates |
-| **7411** | Triple 3-Input | AND Gates |
-| **7420** | Dual 4-Input | High Fan-in NAND Gates |
-| **7432** | Quad 2-Input | OR Gates |
-| **7448** | BCD Decoder | 7-Segment Active-High Display Driver |
-| **7474** | Dual D-Type | Positive-Edge-Triggered Flip-Flops with Preset & Clear |
-| **7476** | Dual J-K | Master-Slave Flip-Flops with Preset & Clear |
-| **7483** | 4-Bit Arithmetic | Binary Full Adder with Fast Lookahead Carry |
-| **7486** | Quad 2-Input | Exclusive-OR (XOR) Gates |
-| **74266**| Quad 2-Input | Open-Collector Exclusive-NOR (XNOR) Gates |
-
-*Tap any placed chip on the bench to open its live pinout diagram and truth table.*
+> **Tip:** Install from one source only. Apps from F-Droid and GitHub may be signed with different keys, so you may need to uninstall before switching between them.
 
 ---
 
-### 🎛️ 3. The IDL-800A Hardware Trainer Console
-A complete physical instrumentation console built right alongside the breadboard:
-* **8 Data Switches (SW0–SW7):** Heavy-duty SPDT rocker switches with mechanical throw animation and persistent binary outputs.
-* **2 Debounced Pulsers:** Momentary switches generating clean, single-cycle positive and negative pulses with complementary \(Q\) and \(\bar{Q}\) outputs.
-* **8 Buffered LED Monitors:** High-contrast logic indicators simulating optical persistence-of-vision and phosphor decay.
-* **Detented Clock Generator:** Stepped hardware clock selectable from **0.5 Hz, 1 Hz, 2 Hz, 5 Hz, 10 Hz, 100 Hz, 1 kHz, 10 kHz, to 100 kHz**, plus manual single-stepping.
-* **Dual 7-Segment Displays:** Common-cathode LED numeric readouts driven directly by binary/BCD inputs.
-* **Master Power Rocker:** Bench-wide VCC and GND distribution master switch.
+## Features
+
+### The breadboard
+
+- **A full-size AD-200 layout:** 1,896 connection points, seven power rails, and the centre trench where chips sit.
+- **Wires that look and move like the real thing.** They curve and sag, and come in ten colours: red, black, blue, green, yellow, white, orange, purple, gray, and brown.
+- **Easy, precise wiring.** Drag a wire, or tap one point and then another. Wires snap to holes, and a 2.2x magnifier follows your finger so you can see exactly where you are connecting.
+- **Two difficulty modes.** *Educational mode* is forgiving. *PRACTICAL mode* is not: reverse the power or short two outputs together and the chip burns out, with sound and a visual warning.
+
+### The trainer console
+
+- **8 data switches** (SW0 to SW7) with a realistic rocker feel
+- **2 pulse buttons** that give a clean single pulse, with Q and Q-bar (opposite) outputs
+- **8 LEDs** (L0 to L7) to show your outputs
+- **A stepped clock** from 0.5 Hz up to 100 kHz, or step it manually one tick at a time
+- **2 seven-segment displays** for numbers
+- **A master power switch** for the whole bench
+
+### The chips
+
+Tap any chip on the bench to see its live pinout and truth table.
+
+| Type | Part | What it does |
+|---|---|---|
+| Gates | **7400** | Four 2-input NAND gates |
+| | **7402** | Four 2-input NOR gates |
+| | **7404** | Six NOT gates (inverters) |
+| | **7408** | Four 2-input AND gates |
+| | **7410** | Three 3-input NAND gates |
+| | **7411** | Three 3-input AND gates |
+| | **7420** | Two 4-input NAND gates |
+| | **7432** | Four 2-input OR gates |
+| | **7486** | Four 2-input XOR gates |
+| | **74266** | Four 2-input XNOR gates (open-collector outputs) |
+| Display | **7448** | BCD to seven-segment display driver |
+| Memory | **7474** | Two D flip-flops, with preset and clear |
+| | **7476** | Two J-K flip-flops, with preset and clear |
+| Arithmetic | **7483** | 4-bit full adder with fast carry |
+
+### Instruments
+
+- **Two-channel oscilloscope.** Attach probes to any breadboard socket or console signal. View CH1, CH2, or both together, and adjust the time and voltage scales to see clock divisions and flip-flop changes.
+- **Live circuit diagram.** The app turns your wiring into a clean gate-level schematic as you build. Green is HIGH, gray is LOW, and red means two outputs are fighting each other. It also shows the Boolean expression for each output.
+
+### Coursework and checking
+
+| Core labs | Extended experiments |
+|---|---|
+| Lab 1: Basic logic gates and truth tables | Binary-to-Gray and Gray-to-binary converters |
+| Lab 2: Building with only NAND or NOR gates | 2-bit and 4-bit magnitude comparators |
+| Lab 3: Half adders and full adders | 3-to-8 decoders, 4:1 multiplexers, and demultiplexers |
+| Lab 4: BCD decoders and seven-segment displays | Up/down ripple counters and divide-by-N |
+| Lab 5: Latches and flip-flops | 4-bit digital-to-analog converter |
+
+- **Guided experiments** with objective checklists.
+- **It recognises your circuit.** The app looks at your wiring and works out which lab you are doing.
+- **One-tap truth-table check.** It tries every possible input combination in a moment and shows whether your circuit passes.
+- **A4 PDF lab report.** Export a printable report with your schematic, test results, timestamp, and a verification code.
+
+### Look and feel
+
+- **Nine hardware themes:** Obsidian Stealth, Amber CRT, HP Slate, Cleanroom White, Cyberpunk Neon, Tokyo Night, Solarized Dark, Vintage British Lab, and Titanium Frost.
+- **Real switch sounds** (snaps, thumps, relay clicks) generated by the app itself. No audio files are bundled.
+- **Haptic feedback** on switch flips and wire connections.
+
+### Save and share
+
+- Save as many circuits as you like. Your work is autosaved.
+- Track your lab time and progress on the Projects screen.
+- Export or import circuits as plain, readable **JSON files** to share with classmates or teachers.
 
 ---
 
-### 📈 4. Diagnostic & Analysis Instruments
+## Try your first circuit
 
-#### 🔍 Real-Time Dual-Channel Oscilloscope
-* Attach Channel 1 and Channel 2 probes to any breadboard socket or console signal.
-* Switch between **CH1, CH2, and DUAL** sweep modes.
-* Adjust timebase (ms/DIV) and vertical volts-per-division to observe clock divisions, ripple delays, and flip-flop state transitions.
+A quick AND-gate test. The LED should light only when both switches are up.
 
-#### 🗺️ Live Boolean Schematic Synthesizer
-* Flips your physical wiring into a **standardized gate-level schematic** in real time.
-* Live signal color-coding: **Green = HIGH**, **Gray = LOW**, **Red = Bus Contention**.
-* Displays automatically derived algebraic Boolean expressions for every active circuit output.
-
----
-
-### 🎓 5. Coursework & Dynamic Verifier Engine
-
-Comprehensive university laboratory curriculum spanning introductory gate logic to complex sequential machines:
-
-| Core Curriculum Labs | Advanced Extended Experiments |
-| :--- | :--- |
-| **Lab 1:** Basic Logic Gates & Truth Tables | **Converter:** 4-Bit Binary-to-Gray & Gray-to-Binary |
-| **Lab 2:** Universal NAND/NOR Gate Synthesis | **Arithmetic:** 2-Bit & 4-Bit Magnitude Comparators |
-| **Lab 3:** Half Adder & Full Adder Arithmetic | **Routing:** 3-to-8 Decoders & 4:1 Multiplexers / Demux |
-| **Lab 4:** BCD Decoders & Seven-Segment Displays | **Sequential:** Up/Down Ripple Counters & Divide-by-N |
-| **Lab 5:** Latches, Flip-Flops & State Memory | **Mixed-Signal:** 4-Bit Weighted-Resistor D/A Converter |
-
-* **Dynamic Lab Matching:** The bench verifier continuously inspects your wiring and automatically identifies matching lab experiments.
-* **Automated Truth-Table Verification:** Sweeps the full \(2^N\) input vector space in milliseconds to validate circuit correctness.
-* **A4 PDF Lab Reports:** Export official, printable PDF lab certificates containing circuit schematics, test bench results, timestamps, and an HMAC-SHA256 verification seal.
+1. Place a **7408** AND gate across the centre trench of the breadboard (the notch on the chip marks pin 1).
+2. Wire the power supply to the rails: connect the trainer's **+5V** terminal to the top **+** rail and **GND** to the top **−** rail.
+3. Power the chip: wire **pin 14** (VCC) to the **+** rail and **pin 7** (GND) to the **−** rail.
+4. Wire switch **SW0** to **pin 1** (Gate 1 input A) and switch **SW1** to **pin 2** (Gate 1 input B).
+5. Wire **pin 3** (Gate 1 output Y) to indicator **L0** (LED0).
+6. Turn on the **master power** switch and flip switches **SW0** and **SW1**. The indicator LED lights up only when both switches are in the UP position.
+7. Tap the **Verify** button (checkmark icon) on the top bar to let the app test your circuit against the full truth table.
 
 ---
 
-### 🎨 6. Sensory Engineering & Nine Hardware Themes
-Customize your workbench to match your favorite lab environment:
-* 🖤 **Obsidian:** Deep true-black palette optimized for AMOLED screens.
-* 🧡 **Amber CRT:** Warm vintage 1980s monochromatic phosphor glow.
-* 🪨 **HP Slate:** Classic Hewlett-Packard test-bench industrial gray.
-* 📄 **Cleanroom:** High-contrast, paper-white daylight lab theme.
-* 💜 **Cyberpunk Neon:** Electric violet and cyan retro-futurism.
-* 🌌 **Tokyo Night:** Modern deep-indigo developer palette.
-* 🌊 **Solarized Dark:** Low-contrast precision palette.
-* 🏛️ **Vintage British Lab:** Classic brass and heritage instrumentation finish.
-* ❄️ **Titanium Frost:** Crisp brushed-metal aerospace styling.
-* 🔊 **Zero-Asset Audio:** Mechanical switch snaps, pulser thumps, and relay clicks synthesized at runtime via Android `AudioTrack`—zero audio files bundled.
-* 📳 **Haptic Feedback:** Dynamic tactile responses calibrated for switch throws and socket connections.
+## Privacy
+
+Logic Labs is built to be trustworthy by design:
+
+- **No internet access.** The app does not request the Android `INTERNET` permission, so it cannot send anything anywhere.
+- **No tracking, no ads.** No analytics, no crash reporters, no ad SDKs, no Google Play Services, no Firebase.
+- **No account.** Open it and start building.
+- **Your data stays on your device.** Circuits, progress, and settings are stored locally. Files leave your device only when you export them yourself.
+
+Don't take our word for it: the full source code is right here.
 
 ---
 
-### 🛡️ 7. Zero-Compromise Privacy & Architecture
-* **100% Offline by Design:** Logic Labs does not declare `android.permission.INTERNET`. It cannot connect to the internet, make API calls, or transmit telemetry.
-* **Zero Tracking / Zero Ads:** No Google Play Services, no Firebase, no crash reporting, no ad SDKs, no trackers.
-* **Local-First Storage:** Circuits, coursework progress, and preferences reside solely on your device.
-* **JSON Project Import / Export:** Share circuits with classmates or professors using plain, human-readable JSON files.
+## Build from source
 
----
+You will need:
 
-## 🛠️ Architecture & Tech Stack
-
-Logic Labs uses a modular Gradle architecture designed for fast compilation, maintainability, and reproducibility:
-
-```
-                      ┌────────────────┐
-                      │      :app      │ (Shell, Navigation, UI Orchestration)
-                      └──┬────┬────┬───┘
-                         │    │    │
-       ┌─────────────────┘    │    └─────────────────┐
-       ▼                      ▼                      ▼
-┌──────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│:feature-tools│    │:feature-instrmts│    │:feature-brdbord │
-│(Verifier,    │    │(Console, Gauges,│    │(Canvas, Loupe,  │
-│ Scope, Labs) │    │ Clock, Displays)│    │ Jumper Physics) │
-└──────┬───────┘    └────────┬────────┘    └────────┬────────┘
-       │                     │                      │
-       └────────────────┐    │    ┌─────────────────┘
-                        ▼    ▼    ▼
-                    ┌─────────────────┐
-                    │  :core-bridge   │ (Netlist DSU, 74xx Catalog)
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │  :core-digital  │ (Headless Simulation Engine)
-                    └─────────────────┘
-```
-
-### Module Responsibilities
-| Module | Purpose |
-| :--- | :--- |
-| `:app` | Application shell, navigation, theme provider, and dialog orchestration |
-| `:core-digital` | Event-driven logic simulation primitives derived from `hneemann/Digital` (pure JVM) |
-| `:core-bridge` | Circuit netlist, Disjoint-Set Union (DSU) graph solver, 74xx TTL catalog |
-| `:core-data` | DataStore preferences, project JSON serializer, and autosave management |
-| `:core-designsystem` | Nine hardware themes, typography, component tokens, and vector icons |
-| `:feature-breadboard` | 2.5D breadboard Canvas painters, Bezier geometry, gesture handlers, loupe |
-| `:feature-instruments` | IDL-800A trainer console controls, rocker switches, pulsers, clock, displays |
-| `:feature-tools` | Dual-trace oscilloscope, boolean schematic generator, coursework, PDF exporter |
-| `:core-testing` | Multi-tier automated verification suites and testing harnesses |
-
----
-
-## 🚀 Building from Source
-
-### Prerequisites
-* **JDK 17** (e.g. OpenJDK 17, Eclipse Temurin)
-* **Android SDK** with Platform `android-35` installed
-* `local.properties` with `sdk.dir` pointing to your Android SDK
+- **JDK 17**
+- **Android SDK** with platform `android-35`
+- A `local.properties` file with `sdk.dir` pointing to your Android SDK
 
 ```bash
-# 1. Clone the repository
+# Get the code
 git clone https://github.com/AdnanFoisal/LogicLabs.git
 cd LogicLabs
 
-# 2. Run unit test suites across all modules
+# Run the tests
 ./gradlew test
 
-# 3. Build debug APK
+# Build a debug APK for testing
 ./gradlew :app:assembleDebug
 
-# 4. Build official unsigned R8 release APK
+# Build a release APK (unsigned)
 ./gradlew :app:assembleRelease
 ```
 
-The resulting release APK will be generated at:
-```
-app/build/outputs/apk/release/app-release-unsigned.apk
-```
+The release APK is created at `app/build/outputs/apk/release/app-release-unsigned.apk`. It is unsigned, so sign it with your own key before installing it on a device.
+
+<details>
+<summary><b>How the project is organised (for developers)</b></summary>
+
+<br>
+
+Logic Labs is written in **Kotlin 2.0** with **Jetpack Compose**, split into small Gradle modules. The simulation engine is derived from [hneemann/Digital](https://github.com/hneemann/Digital).
+
+| Module | What it does |
+|---|---|
+| `:app` | The app shell: navigation, themes, and dialogs |
+| `:core-digital` | The logic simulation engine (pure JVM, no Android code) |
+| `:core-bridge` | Turns breadboard wiring into a circuit, and holds the 74xx chip catalog |
+| `:core-data` | Saved projects, preferences, and autosave |
+| `:core-designsystem` | The nine themes, fonts, colours, and icons |
+| `:feature-breadboard` | Breadboard drawing, wire curves, touch gestures, and the magnifier |
+| `:feature-instruments` | Trainer console: switches, pulsers, clock, LEDs, and displays |
+| `:feature-tools` | Oscilloscope, circuit diagram, coursework, and PDF export |
+| `:core-testing` | Shared test tools |
+
+Store listing text and screenshots live in `fastlane/metadata/android/en-US`, and F-Droid reads them from there.
+
+</details>
 
 ---
 
-## ⭐ Star & Support the Project
+## Contributing
 
-If you find Logic Labs useful for your coursework, lab experiments, teaching, or hobby projects, **please star this repository** on GitHub! It helps more students, professors, and open-source engineers discover this free hardware simulation suite.
+Contributions are welcome from students, teachers, lab instructors, and Android developers.
 
-<div align="center">
+**Ways to help**
 
-[![Star on GitHub](https://img.shields.io/badge/⭐_Star_on_GitHub-Logic_Labs-F59E0B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AdnanFoisal/LogicLabs)
-[![Fork on GitHub](https://img.shields.io/badge/🍴_Fork_Repository-Logic_Labs-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AdnanFoisal/LogicLabs/fork)
+- **Report a bug.** Something wrong with a chip's behaviour, timing, or wire snapping? [Open an issue](https://github.com/AdnanFoisal/LogicLabs/issues) with the steps to reproduce it.
+- **Add a chip.** Want a `74138` decoder, `74151` multiplexer, `74161` counter, or `74193` up/down counter? Start in `:core-bridge`.
+- **Write a lab.** Suggest new experiments, challenges, or ready-made circuits.
+- **Improve the design.** Better gestures, accessibility, or new themes are always appreciated.
 
-</div>
+**How to send a change**
 
----
-
-## 🤝 Contributing
-
-Contributions are warmly welcomed from electrical engineering students, university professors, lab instructors, and Android developers!
-
-### How You Can Help
-* 🐛 **Report Bugs & Simulation Edge-Cases:** Found an unexpected behavior in gate propagation, timing, or breadboard snapping? [Open an Issue](https://github.com/AdnanFoisal/LogicLabs/issues) with reproduction steps.
-* 🧩 **Implement New 74xx TTL ICs:** Want to add your favorite chip (e.g. `74138` 3-to-8 decoder, `74151` 8-to-1 MUX, `74161` synchronous counter, or `74193` up/down counter)? Check out `:core-bridge` and open a Pull Request!
-* 🎓 **Contribute Coursework Experiments:** Propose and design new laboratory experiments, interactive truth-table verification challenges, or preset circuits.
-* 💡 **UI/UX & Design:** Ideas for enhanced gestures, accessibility improvements, or new hardware console themes are always appreciated.
-
-### Contributing Workflow
-1. Fork the repository and create your feature branch:
+1. Fork the repository and create a branch:
    ```bash
-   git checkout -b feature/my-new-74xx-chip
+   git checkout -b feature/my-new-chip
    ```
-2. Make your changes and run the full test suite locally:
+2. Make your changes and run the tests:
    ```bash
    ./gradlew test
    ```
-3. Commit with concise, descriptive commit messages.
-4. Submit a Pull Request describing your additions!
+3. Commit with a short, clear message.
+4. Open a pull request that describes what you changed.
+
+If Logic Labs helps you learn or teach, a ⭐ on GitHub helps other students find it.
 
 ---
 
-## 📜 License & Acknowledgements
+## License and credits
 
-* **Application License:** [GNU General Public License v3.0 (GPL-3.0-only)](LICENSE). The combined application binary is distributed under GPL-3.0-only due to the inclusion of `:core-digital` (hneemann/Digital, which is licensed under GPL-3.0 without the "or later" clause). Original Logic Labs source code outside `:core-digital` remains available under GPL-3.0-or-later.
-* **Simulation Core:** The digital simulation engine in `:core-digital` is derived from the open-source project **[hneemann/Digital](https://github.com/hneemann/Digital)** (GPLv3), which governs the distribution of the combined application binary.
-* **Fonts:** Bundled typography ([Inter](https://github.com/rsms/inter) by Rasmus Andersson and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) by JetBrains) is licensed under the [SIL Open Font License 1.1](THIRD_PARTY_NOTICES.md).
-* See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for complete attribution and license texts.
-
----
+- **License:** [GNU General Public License v3.0](LICENSE) (GPL-3.0-only). The app includes a simulation engine derived from [hneemann/Digital](https://github.com/hneemann/Digital), which is GPL-3.0 without the "or later" option. That sets the license for the combined app. Logic Labs' own source code outside `:core-digital` is also available under GPL-3.0-or-later.
+- **Fonts:** [Inter](https://github.com/rsms/inter) by Rasmus Andersson and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) by JetBrains, under the SIL Open Font License 1.1.
+- **Full attributions:** see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Product names such as K&H IDL-800A are used only to describe the hardware this app imitates. They belong to their respective owners.
 
 <div align="center">
 
-**Crafted with precision for students, makers, and digital logic enthusiasts.**
-
-[![GitHub Stars](https://img.shields.io/github/stars/AdnanFoisal/LogicLabs?style=social)](https://github.com/AdnanFoisal/LogicLabs)
-[![GitHub Forks](https://img.shields.io/github/forks/AdnanFoisal/LogicLabs?style=social)](https://github.com/AdnanFoisal/LogicLabs/fork)
+Made for students, makers, and anyone who loves digital logic.
 
 </div>
+
+[fdroid]: https://f-droid.org/packages/com.logiclabs.app/
